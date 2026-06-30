@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>STAR WARS: EVIL PALADIN — Fan Fiction Project</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&family=Rajdhani:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --gold:#c9a84c;--gold-dim:#8a6a2a;
+  --text:#e8e0d0;--text-dim:#9a8f7a;
+  --surface:#0a0a14;--surface2:#0f0f1e;--surface3:#141428;
+  --border:rgba(201,168,76,0.2);
+}
+html{scroll-behavior:smooth}
+body{background:#04040c;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:16px;line-height:1.7;overflow-x:hidden;}
+
+/* ─ STARFIELD ─ */
+.starfield{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;background:radial-gradient(ellipse at 20% 30%,#0a0a25,#04040c 60%);}
+.star{position:absolute;border-radius:50%;background:#fff;animation:twinkle var(--d) ease-in-out infinite alternate;}
+@keyframes twinkle{0%{opacity:.1}100%{opacity:var(--op);}}
+
+/* ─ NAV ─ */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(180deg,rgba(4,4,12,.95),transparent);transition:background .3s;}
+nav.scrolled{background:rgba(4,4,12,.98);border-bottom:1px solid var(--border);}
+.nav-logo{font-family:'Cinzel',serif;font-size:14px;font-weight:700;color:var(--gold);letter-spacing:.3em;text-decoration:none;}
+.nav-links{display:flex;gap:2rem;list-style:none;}
+.nav-links a{font-family:'Rajdhani',sans-serif;font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:var(--text-dim);text-decoration:none;transition:color .2s;}
+.nav-links a:hover{color:var(--gold);}
+.nav-toggle{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px;}
+.nav-toggle span{width:22px;height:1px;background:var(--text-dim);display:block;}
+@media(max-width:640px){
+  .nav-links{display:none;position:absolute;top:100%;left:0;right:0;background:rgba(4,4,12,.98);flex-direction:column;padding:1rem 2rem;gap:1rem;border-bottom:1px solid var(--border);}
+  .nav-links.open{display:flex;}
+  .nav-toggle{display:flex;}
+}
+
+/* ─ HERO ─ */
+#hero{position:relative;width:100%;height:100vh;overflow:hidden;z-index:1;}
+.hero-video-wrap{position:absolute;inset:0;z-index:0;background:linear-gradient(135deg,#04040c,#0a0a25 40%,#150a30 70%,#04040c);}
+.hero-video-inner{position:absolute;top:0;left:50%;transform:translateX(-50%);height:100%;width:calc(100vh*9/16);min-width:100%;}
+.hero-video-inner iframe,.hero-video-inner video{position:absolute;top:0;left:0;width:100%;height:100%;border:none;}
+.hero-deco{position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:radial-gradient(ellipse 70% 50% at 50% 50%,rgba(20,10,60,.5),transparent 70%),
+    radial-gradient(ellipse 100% 60% at 30% 20%,rgba(79,195,247,.06),transparent 60%),
+    radial-gradient(ellipse 80% 60% at 70% 80%,rgba(239,83,80,.04),transparent 60%);}
+.planet-deco{position:absolute;right:-8%;top:5%;z-index:1;width:min(500px,55vw);height:min(500px,55vw);border-radius:50%;background:radial-gradient(circle at 35% 35%,#1a1040,#080418);box-shadow:inset -40px -25px 80px rgba(79,195,247,.12),inset 25px 25px 100px rgba(20,5,50,.95);opacity:.35;pointer-events:none;}
+.hero-overlay{position:absolute;inset:0;z-index:2;pointer-events:none;
+  background:linear-gradient(to bottom,rgba(4,4,12,.5) 0%,rgba(4,4,12,.05) 25%,rgba(4,4,12,.05) 65%,rgba(4,4,12,.9) 100%),
+    linear-gradient(to right,rgba(4,4,12,.35),transparent 40%,transparent 60%,rgba(4,4,12,.35));}
+.hero-content{position:absolute;inset:0;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:2rem;padding-top:12vh;}
+.ep-label{font-family:'Rajdhani',sans-serif;letter-spacing:.5em;font-size:clamp(10px,1.5vw,13px);color:var(--gold);text-transform:uppercase;margin-bottom:1.5rem;border:1px solid var(--border);display:inline-block;padding:.4rem 1.5rem;backdrop-filter:blur(2px);background:rgba(4,4,12,.3);}
+.hero-sub{font-family:'Cinzel',serif;font-size:clamp(28px,5vw,52px);font-weight:400;letter-spacing:.4em;color:var(--gold-dim);text-transform:uppercase;margin-bottom:.5rem;text-shadow:0 2px 20px rgba(0,0,0,.9);}
+.hero-main{font-family:'Cinzel',serif;font-size:clamp(48px,10vw,108px);font-weight:900;line-height:.88;background:linear-gradient(180deg,#fff 0%,var(--gold) 40%,#8a6a2a 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:.05em;margin-bottom:1.5rem;filter:drop-shadow(0 4px 30px rgba(0,0,0,.9));}
+.saber-line{width:200px;height:2px;margin:0 auto 2rem;background:linear-gradient(90deg,transparent,var(--gold),transparent);position:relative;}
+.saber-line::before,.saber-line::after{content:'';position:absolute;top:-1px;width:6px;height:4px;border-radius:50%;background:var(--gold);box-shadow:0 0 8px var(--gold);}
+.saber-line::before{left:0}.saber-line::after{right:0}
+.hero-tagline{font-family:'Crimson Pro',serif;font-size:clamp(16px,2.5vw,22px);font-style:italic;color:rgba(232,224,208,.85);margin-bottom:3rem;letter-spacing:.05em;text-shadow:0 2px 20px rgba(0,0,0,.9);}
+.hero-cta{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;}
+.btn-gold{font-family:'Rajdhani',sans-serif;font-weight:600;letter-spacing:.2em;text-transform:uppercase;font-size:13px;padding:.9rem 2.5rem;border:1px solid var(--gold);background:rgba(201,168,76,.15);color:var(--gold);text-decoration:none;cursor:pointer;transition:all .3s;display:inline-block;backdrop-filter:blur(4px);}
+.btn-gold:hover{background:rgba(201,168,76,.3);box-shadow:0 0 20px rgba(201,168,76,.25);}
+.btn-ghost{font-family:'Rajdhani',sans-serif;font-weight:600;letter-spacing:.2em;text-transform:uppercase;font-size:13px;padding:.9rem 2.5rem;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.05);color:var(--text-dim);text-decoration:none;cursor:pointer;transition:all .3s;display:inline-block;backdrop-filter:blur(4px);}
+.btn-ghost:hover{border-color:rgba(255,255,255,.5);color:var(--text);}
+.scroll-hint{position:absolute;bottom:2rem;left:50%;transform:translateX(-50%);font-size:10px;color:rgba(154,143,122,.4);letter-spacing:.3em;text-transform:uppercase;z-index:3;animation:bob 2s ease-in-out infinite;}
+@keyframes bob{0%,100%{opacity:.3;transform:translateX(-50%) translateY(0)}50%{opacity:.7;transform:translateX(-50%) translateY(-5px)}}
+
+/* ─ COMMON SECTION ─ */
+section{position:relative;z-index:1;padding:6rem 2rem;}
+.sec-inner{max-width:1100px;margin:0 auto;}
+.sec-label{font-family:'Rajdhani',sans-serif;letter-spacing:.5em;font-size:11px;color:var(--gold);text-transform:uppercase;margin-bottom:.5rem;display:block;}
+.sec-title{font-family:'Cinzel',serif;font-size:clamp(24px,4vw,42px);font-weight:700;color:#fff;margin-bottom:.5rem;line-height:1.2;}
+.sec-divider{width:80px;height:1px;margin:1.5rem 0 3rem;background:linear-gradient(90deg,var(--gold),transparent);}
+
+/* ─ STORY ─ */
+#story{background:var(--surface2);}
+.story-grid{display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:start;}
+.story-text p{color:var(--text-dim);margin-bottom:1.2rem;font-size:17px;line-height:1.8;}
+.fac-cards{display:flex;flex-direction:column;gap:1.2rem;}
+.fac-card{padding:1.2rem 1.5rem;border:1px solid var(--border);background:rgba(201,168,76,.03);}
+.fac-card-title{font-family:'Cinzel',serif;font-size:13px;font-weight:700;color:var(--gold);letter-spacing:.2em;margin-bottom:.4rem;}
+.fac-card p{font-size:13px;color:var(--text-dim);line-height:1.6;}
+@media(max-width:700px){.story-grid{grid-template-columns:1fr;}}
+
+/* ─ SHARED SLIDER ─ */
+.slider-outer{position:relative;}
+.s-clip{overflow:hidden;}
+.s-track{display:flex;transition:transform .5s cubic-bezier(.25,.46,.45,.94);}
+.s-btn{position:absolute;top:50%;transform:translateY(-50%);width:44px;height:44px;border:1px solid var(--border);background:rgba(4,4,12,.85);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:10;transition:all .2s;font-size:24px;color:var(--gold);user-select:none;line-height:1;}
+.s-btn:hover{background:rgba(201,168,76,.12);border-color:var(--gold);}
+.s-btn.prev{left:-22px;}.s-btn.next{right:-22px;}
+.s-dots{display:flex;gap:8px;justify-content:center;margin-top:2rem;}
+.s-dot{width:8px;height:8px;border-radius:50%;background:rgba(201,168,76,.3);border:none;cursor:pointer;transition:all .2s;padding:0;}
+.s-dot.on{background:var(--gold);box-shadow:0 0 8px rgba(201,168,76,.5);}
+@media(max-width:640px){
+  .s-btn{top:auto;transform:none;bottom:-56px;width:40px;height:40px;}
+  .s-btn.prev{left:calc(50% - 50px);}
+  .s-btn.next{right:auto;left:calc(50% + 10px);}
+  .s-dots{margin-top:4.5rem;}
+}
+
+/* ─ CHARACTER SLIDER ─ */
+#characters{background:var(--surface);}
+.char-slide{min-width:100%;display:grid;grid-template-columns:300px 1fr;gap:3rem;align-items:start;}
+/* 左：画像ボックス */
+.char-img{
+  border:1px solid var(--border);aspect-ratio:3/4;
+  display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
+  padding:1.5rem;position:relative;overflow:hidden;
+  background:linear-gradient(160deg,var(--surface3),var(--surface));
+}
+.char-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:50% 50%;z-index:0;}
+.char-img-symbol{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:160px;opacity:.1;user-select:none;z-index:0;}
+.char-img-grad{position:absolute;bottom:0;left:0;right:0;height:60%;background:linear-gradient(transparent,rgba(4,4,12,.9));z-index:1;}
+.char-img-name{position:relative;z-index:2;font-family:'Cinzel',serif;font-size:clamp(16px,2.5vw,24px);font-weight:900;color:#fff;text-align:center;margin-bottom:.4rem;line-height:1.15;}
+.char-img-role{position:relative;z-index:2;font-size:11px;letter-spacing:.3em;text-transform:uppercase;padding:.25rem .8rem;border:1px solid;}
+/* 右：テキスト */
+.char-info{padding-top:.5rem;}
+.char-name{font-family:'Cinzel',serif;font-size:clamp(20px,3vw,34px);font-weight:700;color:#fff;margin-bottom:1.2rem;line-height:1.2;}
+.char-desc{color:var(--text-dim);font-size:16px;line-height:1.85;margin-bottom:1.5rem;}
+.char-tags{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1.5rem;}
+.tag{font-size:11px;letter-spacing:.2em;text-transform:uppercase;padding:.3rem .8rem;border:1px solid rgba(255,255,255,.15);color:var(--text-dim);}
+.char-weapon{display:flex;align-items:center;gap:.6rem;font-size:13px;color:var(--text-dim);letter-spacing:.15em;text-transform:uppercase;}
+.weapon-dot{width:11px;height:11px;border-radius:50%;}
+.char-img-grad,.char-img-name,.char-img-role,.char-img-symbol{display:none;}
+.char-img{background:white!important;}
+.char-img-cover{object-fit:cover!important;object-position:50% 50%!important;}
+.fac-badge,.fac-tags{display:none!important;}
+@media(max-width:760px){
+  .char-slide{grid-template-columns:1fr;}
+  .char-img{aspect-ratio:16/9;max-width:100%;}
+  .char-img-symbol{font-size:90px;}
+}
+
+/* ─ FACTIONS SLIDER ─ */
+#factions{background:var(--surface2);}
+.fac-slide{min-width:100%;display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:start;}
+.fac-img{
+  border:1px solid var(--border);aspect-ratio:4/3;
+  position:relative;overflow:hidden;
+  background:linear-gradient(135deg,var(--surface3),var(--surface));
+  display:flex;align-items:center;justify-content:center;
+}
+.fac-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;}
+.fac-img-symbol{font-size:100px;opacity:.12;user-select:none;position:relative;z-index:0;}
+.fac-info{padding-top:.5rem;}
+.fac-badge{font-size:11px;letter-spacing:.4em;text-transform:uppercase;padding:.25rem .8rem;border:1px solid;display:inline-block;margin-bottom:1rem;}
+.fac-name{font-family:'Cinzel',serif;font-size:clamp(20px,3vw,32px);font-weight:700;color:#fff;margin-bottom:1.2rem;line-height:1.2;}
+.fac-desc{color:var(--text-dim);font-size:16px;line-height:1.85;margin-bottom:1.5rem;}
+.fac-tags{display:flex;flex-wrap:wrap;gap:.5rem;}
+@media(max-width:700px){
+  .fac-slide{grid-template-columns:1fr;}
+  .fac-img{aspect-ratio:16/9;}
+  .fac-img-symbol{font-size:60px;}
+}
+
+/* ─ LINKS ─ */
+#links{background:var(--surface);}
+.links-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.5rem;}
+.link-card{padding:2rem;border:1px solid var(--border);background:rgba(10,10,20,.6);text-decoration:none;display:block;transition:all .3s;position:relative;overflow:hidden;cursor:pointer;}
+.link-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);transform:scaleX(0);transition:transform .3s;}
+.link-card:hover{border-color:rgba(201,168,76,.4);background:rgba(201,168,76,.04);}
+.link-card:hover::after{transform:scaleX(1);}
+.link-label{font-size:11px;letter-spacing:.4em;text-transform:uppercase;color:var(--gold);margin-bottom:.5rem;display:block;}
+.link-title{font-family:'Cinzel',serif;font-size:18px;color:#fff;margin-bottom:.5rem;}
+.link-card p{font-size:13px;color:var(--text-dim);}
+.link-arrow{position:absolute;bottom:1.5rem;right:1.5rem;color:var(--gold);font-size:18px;}
+
+/* ─ CONTACT ─ */
+#contact{background:var(--surface2);}
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:start;}
+.cform{display:flex;flex-direction:column;gap:1.2rem;}
+.fg{display:flex;flex-direction:column;gap:.4rem;}
+.fl{font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);}
+.fi,.ft{background:rgba(201,168,76,.04);border:1px solid var(--border);color:var(--text);font-family:'Rajdhani',sans-serif;font-size:16px;padding:.8rem 1rem;outline:none;transition:border-color .2s;width:100%;}
+.fi:focus,.ft:focus{border-color:rgba(201,168,76,.5);}
+.ft{resize:vertical;min-height:140px;}
+.fi::placeholder,.ft::placeholder{color:var(--text-dim);}
+.fsub{font-family:'Rajdhani',sans-serif;font-weight:600;letter-spacing:.2em;text-transform:uppercase;font-size:13px;padding:.9rem 2rem;border:1px solid var(--gold);background:rgba(201,168,76,.1);color:var(--gold);cursor:pointer;transition:all .3s;width:100%;margin-top:.5rem;}
+.fsub:hover{background:rgba(201,168,76,.25);}
+.fmsg{padding:.8rem;border:1px solid;font-size:13px;display:none;letter-spacing:.1em;}
+.fmsg.ok{border-color:rgba(79,195,247,.4);color:#4fc3f7;}
+.cinfo p{color:var(--text-dim);font-size:16px;line-height:1.8;margin-bottom:1rem;}
+.creator-box{margin-top:2rem;padding:1.5rem;border:1px solid var(--border);background:rgba(201,168,76,.03);}
+.creator-box-title{font-family:'Cinzel',serif;font-size:13px;color:var(--gold);letter-spacing:.2em;margin-bottom:.6rem;}
+.creator-box p{font-size:13px;color:var(--text-dim);line-height:1.7;}
+@media(max-width:700px){.contact-grid{grid-template-columns:1fr;}}
+
+/* ─ DISCLAIMER ─ */
+#disclaimer{background:var(--surface);border-top:1px solid var(--border);padding:4rem 2rem;text-align:center;}
+.disc-icon{font-size:26px;margin-bottom:1rem;opacity:.4;}
+.disc-title{font-family:'Cinzel',serif;font-size:14px;color:var(--gold);letter-spacing:.35em;margin-bottom:1.5rem;}
+.disc-text{max-width:720px;margin:0 auto;font-size:13px;color:var(--text-dim);line-height:2.1;}
+.disc-text strong{color:rgba(232,224,208,.7);}
+.disc-note{max-width:720px;margin:1.5rem auto 0;font-size:12px;color:rgba(154,143,122,.55);line-height:1.9;border-top:1px solid var(--border);padding-top:1.5rem;}
+.disc-sep{width:1px;height:28px;background:var(--border);margin:2rem auto;}
+.disc-support{font-family:'Crimson Pro',serif;font-style:italic;font-size:17px;color:var(--text-dim);max-width:500px;margin:0 auto;}
+.disc-support strong{color:var(--gold);font-style:normal;}
+
+/* ─ FOOTER ─ */
+footer{background:#04040c;border-top:1px solid var(--border);padding:2rem;text-align:center;}
+footer p{font-size:12px;color:rgba(154,143,122,.4);letter-spacing:.1em;}
+
+/* ─ REVEAL ─ */
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .7s,transform .7s;}
+.reveal.in{opacity:1;transform:none;}
+
+/* ─ MYSTERY ─ */
+@keyframes mpulse{0%{opacity:.05}100%{opacity:.2}}
+.mystery{animation:mpulse 3s ease-in-out infinite alternate;}
+
+/* ─ DECO FIGURES ─ */
+.deco-fig{position:absolute;pointer-events:none;z-index:0;opacity:.18;mix-blend-mode:luminosity;filter:grayscale(30%);}
+.deco-fig img{width:100%;height:100%;object-fit:contain;}
+
+/* ─ AUDIO BUTTON ─ */
+.audio-btn{position:fixed;bottom:2rem;right:2rem;z-index:200;width:52px;height:52px;border-radius:50%;border:1px solid var(--border);background:rgba(4,4,12,.88);color:var(--gold);cursor:pointer;font-size:11px;font-family:'Rajdhani',sans-serif;font-weight:600;letter-spacing:.05em;display:flex;align-items:center;justify-content:center;transition:all .2s;backdrop-filter:blur(6px);}
+.audio-btn:hover{background:rgba(201,168,76,.2);border-color:var(--gold);}
+
+/* ─ PROMO VIDEO ─ */
+#promotion{background:var(--surface);}
+.promo-video-wrap{width:min(420px,90vw);margin:0 auto;aspect-ratio:9/16;background:#000;position:relative;overflow:hidden;}
+.promo-video-wrap video{width:100%;height:100%;object-fit:cover;display:block;}
+</style>
+</head>
+<body>
+<div class="starfield" id="sf"></div>
+<button class="audio-btn" id="audio-btn" onclick="toggleAudio()" title="音声オン/オフ">音声ON</button>
+
+<!-- NAV -->
+<nav id="nav">
+  <a href="#hero" class="nav-logo" onclick="scrollTo({top:0,behavior:'smooth'});return false;">EVIL PALADIN</a>
+  <ul class="nav-links" id="nl">
+    <li><a href="#promotion" onclick="navTo('promotion');return false;">プロモーション動画</a></li>
+    <li><a href="#story" onclick="navTo('story');return false;">ストーリー</a></li>
+    <li><a href="#characters" onclick="navTo('characters');return false;">キャラクター</a></li>
+    <li><a href="#factions" onclick="navTo('factions');return false;">勢力</a></li>
+    <li><a href="#links" onclick="navTo('links');return false;">読む</a></li>
+    <li><a href="#contact" onclick="navTo('contact');return false;">問い合わせ</a></li>
+  </ul>
+  <div class="nav-toggle" onclick="toggleNav()"><span></span><span></span><span></span></div>
+</nav>
+
+<!-- ═══ HERO ═══ -->
+<section id="hero" style="position:relative;">
+  <!-- deco: モンスター（左下） -->
+  <div class="deco-fig" style="bottom:-5%;left:-2%;width:min(380px,40vw);height:auto;">
+    <img src="deco_monster.png" alt="">
+  </div>
+  <!-- deco: スナイパー（右上） -->
+  <div class="deco-fig" style="top:5%;right:-1%;width:min(320px,35vw);height:auto;">
+    <img src="deco_sniper.png" alt="">
+  </div>
+  <div class="hero-video-wrap">
+    <div class="hero-deco"></div>
+    <div class="planet-deco"></div>
+  </div>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <div class="ep-label">Fan Fiction Project — 全36話</div>
+    <p class="hero-sub">STAR WARS :</p>
+    <h1 class="hero-main">EVIL<br>PALADIN</h1>
+    <div class="saber-line"></div>
+    <div class="hero-cta">
+      <a href="#story" class="btn-gold" onclick="navTo('story');return false;">ストーリーを見る</a>
+      <a href="#links" class="btn-ghost" onclick="navTo('links');return false;">小説を読む</a>
+    </div>
+    <p style="margin-top:1.5rem;font-size:12px;color:rgba(201,168,76,.75);letter-spacing:.05em;">※ 右下のボタンで音声をオンにできます。</p>
+  </div>
+  <div class="scroll-hint">↓ scroll</div>
+</section>
+
+<!-- ═══ PROMOTION VIDEO ═══ -->
+<section id="promotion">
+  <div class="sec-inner">
+    <span class="sec-label">Promotion</span>
+    <h2 class="sec-title">プロモーション動画</h2>
+    <div class="sec-divider"></div>
+    <div class="promo-video-wrap">
+      <video id="main-video" autoplay muted loop playsinline preload="auto">
+        <source src="Star_Wars_EP0408_web.mp4" type="video/mp4">
+      </video>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ STORY ═══ -->
+<section id="story" style="position:relative;">
+  <!-- deco: 将軍（右下） -->
+  <div class="deco-fig" style="bottom:-8%;right:-3%;width:min(340px,38vw);height:auto;">
+    <img src="deco_general.png" alt="">
+  </div>
+  <div style="position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 80% 50%,rgba(79,195,247,.04),transparent);"></div>
+  <div class="sec-inner">
+    <span class="sec-label">Synopsis</span>
+    <h2 class="sec-title">あらすじ</h2>
+    <div class="sec-divider"></div>
+    <div class="story-text reveal" style="max-width:740px;">
+      <p>銀河の片隅、砂塵が舞う辺境の街に、「モンスター」と呼ばれる男が現れる。名も捨て、組織にも属さず、ただ黒いライトセーバーを腰に下げた流れ者。</p>
+      <p>帝国の亡霊「ファースト・オーダー残党」が幅を利かせ、純白の外套をまとう「ジェダイ聖堂派」が正義の名のもとに街を支配しようとするこの時代に、モンスターは何の目的も持たないまま戦い続ける。</p>
+      <p>やがて彼の前に、ファースト・オーダー残党の脱走兵・ライサ、その妹・リルカ、そして彼自身の暗い過去を知る者たちが現れ、銀河の命運を巡る嵐の中心へと引き込まれていく。</p>
+      <p>全36エピソード。愛と喪失、裏切りと覚悟が交差する、スター・ウォーズファン小説。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CHARACTERS ═══ -->
+<section id="characters">
+  <div class="sec-inner">
+    <span class="sec-label">Characters</span>
+    <h2 class="sec-title">キャラクター</h2>
+    <div class="sec-divider"></div>
+    <div class="slider-outer" style="padding:0 28px;">
+      <button class="s-btn prev" onclick="slideC(-1)">&#8249;</button>
+      <div class="s-clip">
+      <div class="s-track" id="ct">
+
+        <!-- 1 MONSTER -->
+        <div class="char-slide">
+          <div class="char-img" style="background:linear-gradient(160deg,#0a0a1e,#1a0a30);">
+            <img src="モンスター5.png" alt="モンスター">
+            <div class="char-img-grad"></div>
+            <div class="char-img-name">MONSTER</div>
+            <div class="char-img-role" style="color:#9b59b6;border-color:#9b59b6;">黒きジェダイ</div>
+          </div>
+          <div class="char-info">
+            <h3 class="char-name">モンスター</h3>
+            <p class="char-desc">名も組織も捨て、銀河を流れる男。黒いライトセーバーを腰に、命令なく、ただ「嫌いな笑い方」をする者を斬る。飄々とした毒舌の裏に、人を守ることへの本能が宿る。</p>
+          </div>
+        </div>
+
+        <!-- 2 LYSA -->
+        <div class="char-slide">
+          <div class="char-img" style="background:linear-gradient(160deg,#0a1520,#0a2030);">
+            <img src="ライサ・ライセン2.png" alt="ライサ">
+            <div class="char-img-grad"></div>
+            <div class="char-img-name">LYSA</div>
+            <div class="char-img-role" style="color:#4fc3f7;border-color:#4fc3f7;">元ファースト・オーダー</div>
+          </div>
+          <div class="char-info">
+            <h3 class="char-name">ライサ・ライセン</h3>
+            <p class="char-desc">ファースト・オーダー幹部の娘として育てられ、機密データを盗んで脱走した女。白い肌に金髪、強い意志を持つ瞳。モンスターとの出会いが逃亡の旅を変える。離れ離れになった妹リルカを探し続ける。</p>
+          </div>
+        </div>
+
+        <!-- 3 LILKA -->
+        <div class="char-slide">
+          <div class="char-img" style="background:linear-gradient(160deg,#0a1520,#0f2030);">
+            <img src="リルカ＝ライセン.png" alt="リルカ">
+            <div class="char-img-grad"></div>
+            <div class="char-img-name">LILKA</div>
+            <div class="char-img-role" style="color:#80cbc4;border-color:#80cbc4;">ライサの妹</div>
+          </div>
+          <div class="char-info">
+            <h3 class="char-name">リルカ・ライセン</h3>
+            <p class="char-desc">ライサの面影を持つ少女。旅の途中でモンスターとたまたま出会い、ともに行動することになる。強い意志と激しい感情を持ち、姉を守るためなら一歩も引かない。短いツインテールに強気な瞳。リルカとライサの秘密が、やがて明らかになる。</p>
+          </div>
+        </div>
+
+        <!-- 4 AURELIAN / DARTH SILE -->
+        <div class="char-slide">
+          <div class="char-img" style="background:linear-gradient(160deg,#180a18,#280828);">
+            <img src="オーレリアン.png" alt="オーレリアン">
+            <div class="char-img-grad"></div>
+            <div class="char-img-name" style="font-size:clamp(13px,2vw,19px);line-height:1.25;">AURÉLIAN /<br>DARTH SILE</div>
+            <div class="char-img-role" style="color:#ef5350;border-color:#ef5350;">白騎士 → シス</div>
+          </div>
+          <div class="char-info">
+            <h3 class="char-name">オーレリアン・サンクトヴェイル・ドレイヴ<br><span style="font-size:.7em;color:var(--gold);">／ ダース・サイル</span></h3>
+            <p class="char-desc">かつて聖堂派の「白騎士」と謳われた若きジェダイ騎士団団長。モンスターとの戦いで顎・腕・脚を失い、機械の補装具で生きながらえる。ダース・ノロウに拾われ、新たな名を与えられた。祈りを捨て、冷徹な「沈黙の秩序」を掲げる。機械音声の中に、まだ折れていない誇りが残る。</p>
+          </div>
+        </div>
+
+        <!-- 5 DARTH NOLOU -->
+        <div class="char-slide">
+          <div class="char-img" style="background:linear-gradient(160deg,#0a1208,#0a2010);">
+            <img src="ダースノロウ2.png" alt="">
+            <div class="char-img-grad"></div>
+            <div class="char-img-name">DARTH NOLOU</div>
+            <div class="char-img-role" style="color:#66bb6a;border-color:#66bb6a;">シスの暗黒卿</div>
+          </div>
+          <div class="char-info">
+            <h3 class="char-name">ダース・ノロウ</h3>
+            <p class="char-desc">浅黒い肌、短い黒髪、赤い唇。二本のライトセーバー《ムラマサ》を操るシスの暗黒卿。人格が変わるたびに刃の色も変わる——慈悲深い銀、破壊的な黄、冷静な紫、そして狂気の赤。その目的も、何者であるかも、まだ誰も知らない。</p>
+          </div>
+        </div>
+
+        <!-- 6 ASHARA -->
+        <div class="char-slide">
+          <div class="char-img" style="background:linear-gradient(160deg,#100a1f,#200a30);">
+            <img src="アシャラ姫　軽装.JPG" alt="アシャラ" class="char-img-cover" style="transform:scale(1.15) translateY(-4%);">
+            <div class="char-img-grad"></div>
+            <div class="char-img-name">ASHARA</div>
+            <div class="char-img-role" style="color:#c9a84c;border-color:#c9a84c;">王女</div>
+          </div>
+          <div class="char-info">
+            <h3 class="char-name">アシャラ・アルーム・エル・ファルシア</h3>
+            <p class="char-desc">気品を持ちながら、路地裏でも下がらない強情さを持つ王女。モンスターに命を救われたことで彼を追い、ともに時を過ごす中で感情が芽生える。独自の艦隊と精鋭護衛隊を擁する大王国ヴァレンドラの後継者であり、その力は銀河の争乱に無視できない影響を持つ。</p>
+          </div>
+        </div>
+
+        <!-- 7 GRIEVOUS -->
+        <div class="char-slide">
+          <div class="char-img" style="background:linear-gradient(160deg,#181010,#281818);">
+            <img src="グリーヴァス将軍1.jpg" alt="グリーヴァス">
+            <div class="char-img-grad"></div>
+            <div class="char-img-name">GRIEVOUS</div>
+            <div class="char-img-role" style="color:#ff8a65;border-color:#ff8a65;">将軍</div>
+          </div>
+          <div class="char-info">
+            <h3 class="char-name">グリーヴァス将軍</h3>
+            <p class="char-desc">歴史の教科書に載るジェダイ・キラーが、再び銀河に現れた。追加の腕を持ち、六本のライトセーバーを同時に操る。ジェダイ各流派の剣技を体得した圧倒的な戦闘力で、モンスターの前に立ちはだかる。</p>
+          </div>
+        </div>
+
+        <!-- 8 ??? -->
+        <div class="char-slide">
+          <div class="char-img" style="background:linear-gradient(160deg,#050510,#0a0520);">
+            <img src="ルゼルミア＝ライセン2.png" alt="">
+            <div class="char-img-grad"></div>
+            <div class="char-img-name" style="letter-spacing:.4em;color:rgba(255,255,255,.35);">???</div>
+            <div class="char-img-role" style="color:rgba(201,168,76,.4);border-color:rgba(201,168,76,.2);">謎の人物</div>
+          </div>
+          <div class="char-info">
+            <h3 class="char-name" style="color:rgba(255,255,255,.55);">???</h3>
+            <p class="char-desc" style="color:rgba(154,143,122,.65);">美しい軍人。ファースト・オーダーの将校のようだが、すべてが謎に包まれている。</p>
+          </div>
+        </div>
+
+        <!-- 9 ??? -->
+        <div class="char-slide">
+          <div class="char-img" style="background:linear-gradient(160deg,#050505,#100808);">
+            <img src="シャドウグリーヴァス.jpg" alt="">
+            <div class="char-img-grad"></div>
+            <div class="char-img-name" style="letter-spacing:.4em;color:rgba(255,255,255,.35);">???</div>
+            <div class="char-img-role" style="color:rgba(239,83,80,.4);border-color:rgba(239,83,80,.2);">シャドウ</div>
+          </div>
+          <div class="char-info">
+            <h3 class="char-name" style="color:rgba(255,255,255,.55);">???</h3>
+            <p class="char-desc" style="color:rgba(154,143,122,.65);">戦場の目撃情報が、誰も信じていない存在を語っている。それが何者なのか、なぜそこにいるのか——証言する者は複数いるが、誰一人として全貌を見ていない。</p>
+          </div>
+        </div>
+
+        <!-- 10 REY -->
+        <div class="char-slide">
+          <div class="char-img" style="background:linear-gradient(160deg,#0a1525,#102040);">
+            <img src="レイ・スカイウォーカー1（聖堂派によって理想化された姿）.jpg" alt="レイ" style="transform:scale(1.3);">
+            <div class="char-img-grad"></div>
+            <div class="char-img-name">REY</div>
+            <div class="char-img-role" style="color:#fff8e1;border-color:#fff8e1;">ジェダイ・マスター</div>
+          </div>
+          <div class="char-info">
+            <h3 class="char-name">レイ・スカイウォーカー</h3>
+            <p class="char-desc">ジェダイを再興した伝説の人物。聖堂派はその名を旗印として掲げるが、当の本人は現在行方不明となっており、誰もその行く先を知らない。</p>
+          </div>
+        </div>
+
+        <!-- 11 FINN -->
+        <div class="char-slide">
+          <div class="char-img" style="background:linear-gradient(160deg,#0a1510,#0a2015);">
+            <img src="フィン将軍.jpg" alt="フィン">
+            <div class="char-img-grad"></div>
+            <div class="char-img-name">FINN</div>
+            <div class="char-img-role" style="color:#66bb6a;border-color:#66bb6a;">元ストームトルーパー</div>
+          </div>
+          <div class="char-info">
+            <h3 class="char-name">フィン</h3>
+            <p class="char-desc">かつてファースト・オーダーから脱走した元ストームトルーパー。レジスタンスとともに戦い抜いた経験を持ち、今も銀河の平和のために動き続ける。現在は新共和国軍の将軍の一人となっており、主力軍を指揮する。</p>
+          </div>
+        </div>
+
+        <!-- 12 THE MANDALORIAN -->
+        <div class="char-slide">
+          <div class="char-img" style="background:linear-gradient(160deg,#151515,#252525);">
+            <img src="マンダロリアン1.jpg" alt="マンダロリアン">
+            <div class="char-img-grad"></div>
+            <div class="char-img-name">MANDO</div>
+            <div class="char-img-role" style="color:#90a4ae;border-color:#90a4ae;">マンダロリアン</div>
+          </div>
+          <div class="char-info">
+            <h3 class="char-name">マンダロリアン</h3>
+            <p class="char-desc">マンダロアの戦士として掟を守り、グローグーとともに銀河を旅する孤高の賞金稼ぎ。旅の途中でモンスターたちと出会い、一時的に行動をともにする。寡黙だが義理堅く、グローグーへの愛情は本物だ。</p>
+          </div>
+        </div>
+
+        <!-- 13 GROGU -->
+        <div class="char-slide">
+          <div class="char-img" style="background:linear-gradient(160deg,#081510,#0a2015);">
+            <img src="グローグー1.jpg" alt="グローグー">
+            <div class="char-img-grad"></div>
+            <div class="char-img-name">GROGU</div>
+            <div class="char-img-role" style="color:#a5d6a7;border-color:#a5d6a7;">フォースの子</div>
+          </div>
+          <div class="char-info">
+            <h3 class="char-name">グローグー</h3>
+            <p class="char-desc">マンダロリアンが育てる、強大なフォース能力を持つ緑の幼子。誰に対しても無邪気に懐く存在で、旅の空気を和らげる。その小さな手が伸びるとき、何かが変わる。</p>
+          </div>
+        </div>
+
+        <!-- 14 SABINE -->
+        <div class="char-slide">
+          <div class="char-img" style="background:linear-gradient(160deg,#1a0a15,#2a0a20);">
+            <img src="サビーナ1.JPG" alt="サビーナ">
+            <div class="char-img-grad"></div>
+            <div class="char-img-name">SABINA</div>
+            <div class="char-img-role" style="color:#ce93d8;border-color:#ce93d8;">影連合幹部</div>
+          </div>
+          <div class="char-info">
+            <h3 class="char-name">サビーナ</h3>
+            <p class="char-desc">武器商人の集まり"影連合"の幹部。同じく幹部であるマグロウと派閥争いを繰り広げている。強く、恐ろしいように見えるが、実は弱いものを大切にする心を持っている。</p>
+          </div>
+        </div>
+
+        <!-- 15 C-3PO -->
+        <div class="char-slide">
+          <div class="char-img" style="background:linear-gradient(160deg,#1a1400,#2a2000);">
+            <img src="C3PO.jpg" alt="C-3PO">
+            <div class="char-img-grad"></div>
+            <div class="char-img-name">C-3PO</div>
+            <div class="char-img-role" style="color:#ffd600;border-color:#ffd600;">プロトコル・ドロイド</div>
+          </div>
+          <div class="char-info">
+            <h3 class="char-name">C-3PO</h3>
+            <p class="char-desc">600万種以上の言語と礼儀作法を熟知する黄金のプロトコル・ドロイド。聖堂派の布教活動に「声」として利用されてきた経緯を持つ。</p>
+          </div>
+        </div>
+
+        <!-- 16 ハンリッヒ大提督 -->
+        <div class="char-slide">
+          <div class="char-img" style="background:linear-gradient(160deg,#0a0808,#1a0a0a);">
+            <img src="ハンリッヒ大提督2.jpg" alt="ハンリッヒ大提督">
+          </div>
+          <div class="char-info">
+            <h3 class="char-name">ハンリッヒ大提督</h3>
+            <p class="char-desc">ファーストオーダー残党の司令官と目される人物。シス・エターナルを始めとした残党最大勢力をとりまとめ、新共和国とジェダイへの復讐を誓う。</p>
+          </div>
+        </div>
+
+        <!-- 17 ヒエロス聖 -->
+        <div class="char-slide">
+          <div class="char-img" style="background:linear-gradient(160deg,#0a0f1a,#0f1a2a);">
+            <img src="ヒエロス聖.jpg" alt="ヒエロス聖" style="transform:scale(1.2);">
+          </div>
+          <div class="char-info">
+            <h3 class="char-name">ヒエロス・ヴァレドラム・ソルムダイン</h3>
+            <p class="char-desc">通称"ヒエロス聖"。ジェダイ聖堂派の実質的な指導者。英雄レイ・スカイウォーカーの盟友として彼女を偶像化し、聖堂派を名実ともにジェダイの最大派閥にした。歴史の陰で暗躍する。</p>
+          </div>
+        </div>
+
+        <!-- 18 ダース・ベイダー -->
+        <div class="char-slide">
+          <div class="char-img" style="background:linear-gradient(160deg,#040408,#08040c);">
+            <img src="ダースベイダー1.png" alt="ダース・ベイダー">
+          </div>
+          <div class="char-info">
+            <h3 class="char-name">ダース・ベイダー</h3>
+            <p class="char-desc">かつて恐れられたシスの暗黒卿にそっくりな黒い武者。しかし、その正体は謎に満ちている。</p>
+          </div>
+        </div>
+
+      </div>
+      </div>
+      <button class="s-btn next" onclick="slideC(1)">&#8250;</button>
+    </div>
+    <div class="s-dots" id="cd"></div>
+  </div>
+</section>
+
+<!-- ═══ FACTIONS ═══ -->
+<section id="factions" style="position:relative;">
+  <!-- deco: コマンダー（左上） -->
+  <div class="deco-fig" style="top:-5%;left:-2%;width:min(360px,38vw);height:auto;">
+    <img src="deco_commander.png" alt="">
+  </div>
+  <div style="position:absolute;inset:0;background:radial-gradient(ellipse 60% 40% at 20% 70%,rgba(239,83,80,.04),transparent);"></div>
+  <div class="sec-inner">
+    <span class="sec-label">Factions &amp; Universe</span>
+    <h2 class="sec-title">勢力・世界観</h2>
+    <div class="sec-divider"></div>
+    <div class="slider-outer" style="padding:0 28px;">
+      <button class="s-btn prev" onclick="slideF(-1)">&#8249;</button>
+      <div class="s-clip">
+      <div class="s-track" id="ft">
+
+        <!-- F1 聖堂派 -->
+        <div class="fac-slide">
+          <div class="fac-img">
+            <img src="聖堂派2.png" alt="ジェダイ聖堂派">
+            <div class="fac-img-symbol" style="color:rgba(79,195,247,.3);">✦</div>
+          </div>
+          <div class="fac-info">
+            <div class="fac-badge" style="color:#4fc3f7;border-color:#4fc3f7;">FACTION 01</div>
+            <h3 class="fac-name">ジェダイ聖堂派</h3>
+            <p class="fac-desc">レイ・スカイウォーカーを象徴に掲げ、白と金の旗で銀河に「祈りと秩序」を広める最大派閥。新共和国を支持し表向きは平和の使者として振る舞うが、その正義の名のもとに街を支配しようとする側面を持つ。深い陰が、白い外套の裏に潜んでいる。</p>
+            <div class="fac-tags">
+              <span class="tag">最大勢力</span><span class="tag">白のライトセーバー</span><span class="tag">銀河布教</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- F2 影連合 -->
+        <div class="fac-slide">
+          <div class="fac-img" style="background:linear-gradient(135deg,#100a08,#201510);">
+            <img src="影連合.png" alt="影連合">
+            <div class="fac-img-symbol" style="color:rgba(201,168,76,.3);">◈</div>
+          </div>
+          <div class="fac-info">
+            <div class="fac-badge" style="color:#c9a84c;border-color:#c9a84c;">FACTION 02</div>
+            <h3 class="fac-name">影連合</h3>
+            <p class="fac-desc">どの勢力にも属さない武器商人・闇商人・傭兵たちの集合体。金が唯一の正義であり、生き残るための情報と武力を持つ。モンスターが最初に接触する組織であり、物語の序盤における重要な舞台。内部抗争と裏切りが絶えない。</p>
+            <div class="fac-tags">
+              <span class="tag">中立組織</span><span class="tag">情報売買</span><span class="tag">内部抗争</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- F3 ファースト・オーダー残党 -->
+        <div class="fac-slide">
+          <div class="fac-img" style="background:linear-gradient(135deg,#100505,#200a0a);">
+            <img src="ファーストオーダー残党.png" alt="ファースト・オーダー残党">
+            <div class="fac-img-symbol" style="color:rgba(239,83,80,.3);">☽</div>
+          </div>
+          <div class="fac-info">
+            <div class="fac-badge" style="color:#ef5350;border-color:#ef5350;">FACTION 03</div>
+            <h3 class="fac-name">ファースト・オーダー残党</h3>
+            <p class="fac-desc">ファースト・オーダー崩壊後も各地に潜伏し続ける残存勢力。統一された指揮系統を失いながらも、それぞれが独自に力を蓄え、銀河の混乱に乗じて復権を狙っている。その一部は新たな組織として再編されつつある。</p>
+            <div class="fac-tags">
+              <span class="tag">帝国残党</span><span class="tag">各地に潜伏</span><span class="tag">復権を狙う</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- F4 大王国ヴァレンドラ -->
+        <div class="fac-slide">
+          <div class="fac-img" style="background:linear-gradient(135deg,#100a1f,#1a0a30);">
+            <img src="ヴァレンドラ大王国.png" alt="大王国ヴァレンドラ">
+            <div class="fac-img-symbol" style="color:rgba(201,168,76,.3);">♕</div>
+          </div>
+          <div class="fac-info">
+            <div class="fac-badge" style="color:#c9a84c;border-color:#c9a84c;">FACTION 04</div>
+            <h3 class="fac-name">大王国ヴァレンドラ</h3>
+            <p class="fac-desc">アシャラ王女が君臨する独立王国。独自の艦隊と精鋭護衛隊を擁し、どの勢力とも距離を置いてきた。しかしアシャラの行動によって否応なく銀河の争乱へと巻き込まれていく。古い家系と誇りを持ち、その存在感は小さくない。</p>
+            <div class="fac-tags">
+              <span class="tag">独立王国</span><span class="tag">独自艦隊</span><span class="tag">精鋭護衛隊</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- F5 新共和国 -->
+        <div class="fac-slide">
+          <div class="fac-img" style="background:linear-gradient(135deg,#081520,#0a2030);">
+            <img src="シンコルサント.png" alt="新共和国">
+            <div class="fac-img-symbol" style="color:rgba(128,203,196,.25);">⊕</div>
+          </div>
+          <div class="fac-info">
+            <div class="fac-badge" style="color:#80cbc4;border-color:#80cbc4;">FACTION 05</div>
+            <h3 class="fac-name">新共和国</h3>
+            <p class="fac-desc">帝国崩壊後に樹立された民主的銀河政府。しかし内部の腐敗と派閥争い、各勢力の台頭によって統治は形骸化しつつある。銀河の秩序を守ろうとする者たちが、それでも踏みとどまっている。</p>
+            <div class="fac-tags">
+              <span class="tag">銀河政府</span><span class="tag">民主主義</span><span class="tag">内部腐敗</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      </div>
+      <button class="s-btn next" onclick="slideF(1)">&#8250;</button>
+    </div>
+    <div class="s-dots" id="fd"></div>
+  </div>
+</section>
+
+<!-- ═══ LINKS ═══ -->
+<section id="links" style="position:relative;">
+  <!-- deco: ツインテール（右下） -->
+  <div class="deco-fig" style="bottom:-6%;right:-2%;width:min(300px,32vw);height:auto;">
+    <img src="deco_girl1.png" alt="">
+  </div>
+  <div class="sec-inner">
+    <span class="sec-label">Read</span>
+    <h2 class="sec-title">小説を読む</h2>
+    <div class="sec-divider"></div>
+    <div class="links-grid">
+      <div class="link-card reveal" onclick="location.href='https://example.com'">
+        <!-- ↑ 'https://example.com' を実際の小説家になろうURLに変更してください -->
+        <span class="link-label">小説掲載サイト</span>
+        <div class="link-title">小説家になろう</div>
+        <p>全36エピソード掲載中。モンスターと仲間たちの銀河を駆ける物語をお楽しみください。</p>
+        <span class="link-arrow">→</span>
+      </div>
+      <div class="link-card reveal" onclick="location.href='https://example.com'">
+        <!-- ↑ カクヨムのURLに変更してください -->
+        <span class="link-label">小説掲載サイト</span>
+        <div class="link-title">カクヨム</div>
+        <p>クロス掲載。スマートフォンでも読みやすいインターフェースでお楽しみいただけます。</p>
+        <span class="link-arrow">→</span>
+      </div>
+      <div class="link-card reveal" onclick="location.href='https://example.com'">
+        <!-- ↑ YouTubeチャンネルURLに変更してください -->
+        <span class="link-label">動画チャンネル</span>
+        <div class="link-title">YouTube</div>
+        <p>本プロジェクトのPR動画・映像作品を公開しています。</p>
+        <span class="link-arrow">→</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CONTACT ═══ -->
+<section id="contact">
+  <div class="sec-inner">
+    <div class="contact-grid">
+      <div>
+        <span class="sec-label">Contact</span>
+        <h2 class="sec-title">問い合わせ</h2>
+        <div class="sec-divider"></div>
+        <form class="cform" onsubmit="sendForm(event)">
+          <div class="fg"><label class="fl">お名前</label><input class="fi" type="text" name="name" placeholder="Your Name" required></div>
+          <div class="fg"><label class="fl">メールアドレス</label><input class="fi" type="email" name="email" placeholder="your@email.com" required></div>
+          <div class="fg"><label class="fl">件名</label><input class="fi" type="text" name="subject" placeholder="Subject"></div>
+          <div class="fg"><label class="fl">メッセージ</label><textarea class="ft" name="message" placeholder="感想・コラボ依頼・ご意見など" required></textarea></div>
+          <div class="fmsg" id="fmsg"></div>
+          <button type="submit" class="fsub">送信する</button>
+        </form>
+      </div>
+      <div class="cinfo reveal">
+        <p>作品への感想など、お気軽にご連絡ください。原則、返信はいたしません。</p>
+        <div class="creator-box">
+          <div class="creator-box-title">ABOUT THE CREATOR</div>
+          <p style="color:var(--text);font-size:15px;font-family:'Cinzel',serif;letter-spacing:.1em;margin-bottom:.5rem;">Michikazu Sashie</p>
+          <p>本作品は、スター・ウォーズを愛する個人クリエイターによる非商用ファン作品です。ストーリー・キャラクター設定・小説執筆から映像演出まで、すべて一人で手がけています。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ DISCLAIMER ═══ -->
+<section id="disclaimer">
+  <div class="sec-inner" style="max-width:780px;">
+    <div class="disc-icon">⚠</div>
+    <div class="disc-title">DISCLAIMER / ディスクレーマー</div>
+    <div class="disc-text">
+      <p>本作品「STAR WARS: EVIL PALADIN」は、<strong>スター・ウォーズのファンによる二次創作作品</strong>です。スター・ウォーズおよびすべての関連キャラクター・設定の権利は <strong>Lucasfilm Ltd. / Walt Disney Company</strong> に帰属します。</p>
+      <br>
+      <p>本作品は<strong>完全に非商用</strong>であり、金銭的利益を目的とするものではありません。小説・映像いずれも、純粋なファン活動の一環として制作されたものです。</p>
+      <br>
+      <p>登場するオリジナルキャラクター（モンスター、ライサ・ライセン、リルカ・ライセン、アシャラ・アルーム・エル・ファルシア、ダース・ノロウ、オーレリアン・サンクトヴェイル・ドレイヴ／ダース・サイル、ルゼルミア・ライセンほか）の設定・物語は作者に帰属します。</p>
+    </div>
+    <div class="disc-note">
+      ※ 本作品の映像素材には画像・映像生成のデジタルツールを一部使用しています。ただし、ストーリー・キャラクター設定・世界観・脚本はすべて作者本人が執筆・構成したオリジナルです。
+    </div>
+    <div class="disc-sep"></div>
+    <p class="disc-support">
+      もし本作品を楽しんでいただけたなら、<strong>感想・シェア・応援</strong>が何より嬉しいです。<br>
+      個人クリエイターとして、皆さんの声が制作の原動力になっています。
+    </p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p>STAR WARS: EVIL PALADIN — Fan Fiction Project / Non-Commercial Fan Work<br>
+  Star Wars &copy; Lucasfilm Ltd. / Disney. All rights reserved. This is an unofficial fan creation.</p>
+</footer>
+
+<script>
+// ── STARFIELD
+(function(){
+  const sf=document.getElementById('sf');
+  for(let i=0;i<180;i++){
+    const s=document.createElement('div');s.className='star';
+    const sz=Math.random()*2+.5,op=Math.random()*.6+.1;
+    s.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;top:${Math.random()*100}%;--d:${2+Math.random()*4}s;--op:${op};animation-delay:${Math.random()*4}s;`;
+    sf.appendChild(s);
+  }
+})();
+
+// ── NAV
+window.addEventListener('scroll',()=>document.getElementById('nav').classList.toggle('scrolled',scrollY>50));
+function navTo(id){
+  closeNav();
+  const el=document.getElementById(id);
+  if(el) el.scrollIntoView({behavior:'smooth'});
+}
+function toggleNav(){document.getElementById('nl').classList.toggle('open');}
+function closeNav(){document.getElementById('nl').classList.remove('open');}
+
+// ── SLIDER FACTORY
+function makeSlider(trackId, dotsId, count, prevFn, nextFn){
+  let cur=0;
+  const track=document.getElementById(trackId);
+  const wrap=document.getElementById(dotsId);
+  for(let i=0;i<count;i++){
+    const d=document.createElement('button');
+    d.className='s-dot'+(i===0?' on':'');
+    (n=>{d.onclick=()=>go(n);})(i);
+    wrap.appendChild(d);
+  }
+  function go(n){
+    cur=(n+count)%count;
+    track.style.transform=`translateX(-${cur*100}%)`;
+    wrap.querySelectorAll('.s-dot').forEach((d,i)=>d.classList.toggle('on',i===cur));
+  }
+  // swipe
+  let tx=0;
+  track.addEventListener('touchstart',e=>tx=e.touches[0].clientX,{passive:true});
+  track.addEventListener('touchend',e=>{const d=tx-e.changedTouches[0].clientX;if(Math.abs(d)>40)go(cur+(d>0?1:-1));});
+  return {go, slide:(dir)=>go(cur+dir)};
+}
+
+const cSlider=makeSlider('ct','cd',18);
+const fSlider=makeSlider('ft','fd',5);
+function slideC(d){cSlider.slide(d);}
+function slideF(d){fSlider.slide(d);}
+setInterval(()=>cSlider.slide(1),8000);
+setInterval(()=>fSlider.slide(1),8000);
+
+// ── SCROLL REVEAL
+const ro=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in');}),{threshold:.1});
+document.querySelectorAll('.reveal').forEach(el=>ro.observe(el));
+
+// ── AUDIO / VIDEO AUTOPLAY
+const _v=document.getElementById('main-video');
+const _b=document.getElementById('audio-btn');
+
+_b.textContent='音声OFF';
+_b.style.opacity='.6';
+
+// 何らかの理由で止まったら自動で再起動（ミュートで）
+_v.addEventListener('pause',()=>{
+  _v.muted=true;
+  _b.textContent='音声OFF';
+  _b.style.opacity='.6';
+  _v.play().catch(()=>{});
+});
+
+function toggleAudio(){
+  if(_v.muted){
+    _v.muted=false;
+    _v.play().catch(()=>{});
+    _b.textContent='音声ON'; _b.style.opacity='1';
+  } else{
+    _v.muted=true;
+    _b.textContent='音声OFF'; _b.style.opacity='.6';
+  }
+}
+
+// ── FORM
+function sendForm(e){
+  e.preventDefault();
+  const m=document.getElementById('fmsg');
+  m.className='fmsg ok';m.style.display='block';
+  m.textContent='ありがとうございます。（送信機能の実装はFormspree等をご利用ください）';
+  setTimeout(()=>m.style.display='none',6000);
+}
+</script>
+</body>
+</html>
