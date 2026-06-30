@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>創作のページ</title>
+<title>創作のページ | SashieMichkazu</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -12,17 +12,38 @@
       <a class="brand" href="./">創作のページ</a>
     </header>
 
-    <h1>作品をまとめています</h1>
-    <p class="lead">小説を中心に、ときどき映像やイラストも置いています。</p>
+    <section class="intro">
+      <p class="eyebrow">作者</p>
+      <h1>SashieMichkazu</h1>
+      <p class="lead">小説・映像・イラストなど、作品ごとに世界観をまとめています。</p>
+    </section>
 
-    <ul class="category-list">
-      <li><a href="novels/"><span class="label">小説</span><span class="count">→</span></a></li>
-      <li><a href="movies/"><span class="label">映像</span><span class="count">→</span></a></li>
-      <li><a href="illustrations/"><span class="label">イラスト</span><span class="count">→</span></a></li>
-    </ul>
+    <div class="work-grid">
+
+      <a class="work-card" href="works/star-wars-evil-paladin/index.html">
+        <div class="work-thumb">
+          <img src="assets/work-star-wars-evil-paladin.jpg" alt="STAR WARS: EVIL PALADIN">
+        </div>
+        <div class="work-info">
+          <h2 class="work-title">STAR WARS: EVIL PALADIN</h2>
+          <p class="work-tags">小説 / 映像 ファンフィクション</p>
+        </div>
+      </a>
+
+      <div class="work-card is-placeholder">
+        <div class="work-thumb work-thumb--empty">
+          <span>準備中</span>
+        </div>
+        <div class="work-info">
+          <h2 class="work-title">次の作品</h2>
+          <p class="work-tags">Coming soon</p>
+        </div>
+      </div>
+
+    </div>
 
     <footer class="site-footer">
-      &copy; 2026
+      &copy; 2026 SashieMichkazu
     </footer>
   </div>
 </body>
