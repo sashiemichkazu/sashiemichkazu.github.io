@@ -3,48 +3,57 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>創作のページ | SashieMichkazu</title>
+<title>MICHIKAZU SASHIE | 創作のページ</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="wrap">
-    <header class="site-header">
-      <a class="brand" href="./">創作のページ</a>
-    </header>
 
-    <section class="intro">
-      <p class="eyebrow">作者</p>
-      <h1>SashieMichkazu</h1>
-      <p class="lead">小説・映像・イラストなど、作品ごとに世界観をまとめています。</p>
+  <div class="wrap wrap--top">
+    <section class="hero">
+      <h1 class="hero-name">MICHIKAZU<br>SASHIE</h1>
+      <p class="hero-sub">小説・映像・イラスト ── 作品ごとに世界観をまとめています。</p>
+    </section>
+  </div>
+
+  <div class="hero-banner">
+    <img src="assets/hero-banner.png" alt="STAR WARS: EVIL PALADIN — メイングラフィック（仮）">
+  </div>
+
+  <div class="wrap wrap--bottom">
+    <section class="works">
+      <h2 class="section-title">WORKS</h2>
+
+      <div class="work-grid">
+
+        <a class="work-card" href="works/star-wars-evil-paladin/index.html">
+          <span class="work-num">001</span>
+          <div class="work-thumb">
+            <img src="assets/work-star-wars-evil-paladin.jpg" alt="STAR WARS: EVIL PALADIN">
+          </div>
+          <div class="work-info">
+            <h3 class="work-title">STAR WARS:<br>EVIL PALADIN</h3>
+            <p class="work-tags">NOVEL / FILM — Fan Fiction</p>
+          </div>
+        </a>
+
+        <div class="work-card is-placeholder">
+          <span class="work-num">002</span>
+          <div class="work-thumb work-thumb--empty">
+            <span>COMING SOON</span>
+          </div>
+          <div class="work-info">
+            <h3 class="work-title">NEXT WORK</h3>
+            <p class="work-tags">準備中</p>
+          </div>
+        </div>
+
+      </div>
     </section>
 
-    <div class="work-grid">
-
-      <a class="work-card" href="works/star-wars-evil-paladin/index.html">
-        <div class="work-thumb">
-          <img src="assets/work-star-wars-evil-paladin.jpg" alt="STAR WARS: EVIL PALADIN">
-        </div>
-        <div class="work-info">
-          <h2 class="work-title">STAR WARS: EVIL PALADIN</h2>
-          <p class="work-tags">小説 / 映像 ファンフィクション</p>
-        </div>
-      </a>
-
-      <div class="work-card is-placeholder">
-        <div class="work-thumb work-thumb--empty">
-          <span>準備中</span>
-        </div>
-        <div class="work-info">
-          <h2 class="work-title">次の作品</h2>
-          <p class="work-tags">Coming soon</p>
-        </div>
-      </div>
-
-    </div>
-
     <footer class="site-footer">
-      &copy; 2026 SashieMichkazu
+      &copy; 2026 MICHIKAZU SASHIE
     </footer>
   </div>
+
 </body>
 </html>
