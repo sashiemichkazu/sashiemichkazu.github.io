@@ -16,8 +16,8 @@
   </div>
 
   <div class="hero-banner">
-    <img class="slide active" src="assets/slide1.png" alt="">
-    <img class="slide" src="assets/slide2.png" alt="">
+    <img class="slide slide1" src="assets/slide1.png" alt="">
+    <img class="slide slide2" src="assets/slide2.png" alt="">
   </div>
 
   <div class="wrap wrap--bottom">
@@ -87,14 +87,5 @@
     </footer>
   </div>
 
-<script>
-const slides = document.querySelectorAll('.hero-banner .slide');
-let cur = 0;
-setInterval(() => {
-  slides[cur].classList.remove('active');
-  cur = (cur + 1) % slides.length;
-  slides[cur].classList.add('active');
-}, 2000);
-</script>
 </body>
 </html>
