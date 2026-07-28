@@ -170,6 +170,74 @@ a.work-card:hover {
   cursor: default;
 }
 
+/* ---- contact ---- */
+
+.contact {
+  padding-top: 72px;
+}
+
+.contact-form {
+  max-width: 540px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.cf-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cf-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.cf-input {
+  width: 100%;
+  padding: 12px 14px;
+  font-family: inherit;
+  font-size: 0.97rem;
+  background: #fff;
+  border: 1.5px solid var(--line);
+  border-radius: 3px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.cf-input:focus {
+  border-color: var(--text);
+}
+
+.cf-textarea {
+  resize: vertical;
+  min-height: 140px;
+}
+
+.cf-submit {
+  align-self: flex-start;
+  padding: 12px 32px;
+  background: var(--text);
+  color: #fff;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.cf-submit:hover {
+  background: var(--accent);
+}
+
 footer.site-footer {
   margin-top: 80px;
   font-size: 0.78rem;
