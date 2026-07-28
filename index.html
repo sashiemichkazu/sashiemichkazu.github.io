@@ -16,7 +16,8 @@
   </div>
 
   <div class="hero-banner">
-    <img src="assets/hero-banner.png" alt="STAR WARS: EVIL PALADIN — メイングラフィック（仮）">
+    <img class="slide active" src="assets/slide1.png" alt="">
+    <img class="slide" src="assets/slide2.png" alt="">
   </div>
 
   <div class="wrap wrap--bottom">
@@ -39,7 +40,7 @@
         <a class="work-card" href="works/fate-no-one-out-of-twelve/index.html">
           <span class="work-num">002</span>
           <div class="work-thumb">
-            <img src="works/fate-no-one-out-of-twelve/エミヤガワ　シノ.PNG" alt="Fate／Last One Standing">
+            <img src="assets/work-fate.png" alt="Fate／Last One Standing">
           </div>
           <div class="work-info">
             <h3 class="work-title">FATE:<br>LAST ONE<br>STANDING</h3>
@@ -86,5 +87,14 @@
     </footer>
   </div>
 
+<script>
+const slides = document.querySelectorAll('.hero-banner .slide');
+let cur = 0;
+setInterval(() => {
+  slides[cur].classList.remove('active');
+  cur = (cur + 1) % slides.length;
+  slides[cur].classList.add('active');
+}, 2000);
+</script>
 </body>
 </html>
