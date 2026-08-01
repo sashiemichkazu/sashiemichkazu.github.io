@@ -236,7 +236,7 @@ footer p{font-size:12px;color:rgba(154,143,122,.4);letter-spacing:.1em;}
     <li><a href="#characters" onclick="navTo('characters');return false;">キャラクター</a></li>
     <li><a href="#factions" onclick="navTo('factions');return false;">勢力</a></li>
     <li><a href="#links" onclick="navTo('links');return false;">読む</a></li>
-    <li><a href="#contact" onclick="navTo('contact');return false;">問い合わせ</a></li>
+    <li><a href="../../index.html">ポータルサイトへ</a></li>
   </ul>
   <div class="nav-toggle" onclick="toggleNav()"><span></span><span></span><span></span></div>
 </nav>
@@ -712,35 +712,6 @@ footer p{font-size:12px;color:rgba(154,143,122,.4);letter-spacing:.1em;}
   </div>
 </section>
 
-<!-- ═══ CONTACT ═══ -->
-<section id="contact">
-  <div class="sec-inner">
-    <div class="contact-grid">
-      <div>
-        <span class="sec-label">Contact</span>
-        <h2 class="sec-title">問い合わせ</h2>
-        <div class="sec-divider"></div>
-        <form class="cform" onsubmit="sendForm(event)">
-          <div class="fg"><label class="fl">お名前</label><input class="fi" type="text" name="name" placeholder="Your Name" required></div>
-          <div class="fg"><label class="fl">メールアドレス</label><input class="fi" type="email" name="email" placeholder="your@email.com" required></div>
-          <div class="fg"><label class="fl">件名</label><input class="fi" type="text" name="subject" placeholder="Subject"></div>
-          <div class="fg"><label class="fl">メッセージ</label><textarea class="ft" name="message" placeholder="感想・コラボ依頼・ご意見など" required></textarea></div>
-          <div class="fmsg" id="fmsg"></div>
-          <button type="submit" class="fsub">送信する</button>
-        </form>
-      </div>
-      <div class="cinfo reveal">
-        <p>作品への感想など、お気軽にご連絡ください。原則、返信はいたしません。</p>
-        <div class="creator-box">
-          <div class="creator-box-title">ABOUT THE CREATOR</div>
-          <p style="color:var(--text);font-size:15px;font-family:'Cinzel',serif;letter-spacing:.1em;margin-bottom:.5rem;">Michikazu Sashie</p>
-          <p>本作品は、スター・ウォーズを愛する個人クリエイターによる非商用ファン作品です。ストーリー・キャラクター設定・小説執筆から映像演出まで、すべて一人で手がけています。</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
 <!-- ═══ DISCLAIMER ═══ -->
 <section id="disclaimer">
   <div class="sec-inner" style="max-width:780px;">
@@ -766,6 +737,7 @@ footer p{font-size:12px;color:rgba(154,143,122,.4);letter-spacing:.1em;}
 
 <!-- FOOTER -->
 <footer>
+  <p style="margin-bottom:1rem;"><a href="../../index.html" style="color:var(--gold);text-decoration:none;letter-spacing:.15em;">← ポータルサイトへ戻る</a></p>
   <p>STAR WARS: EVIL PALADIN — Fan Fiction Project / Non-Commercial Fan Work<br>
   Star Wars &copy; Lucasfilm Ltd. / Disney. All rights reserved. This is an unofficial fan creation.</p>
 </footer>
@@ -852,14 +824,6 @@ function toggleAudio(){
   }
 }
 
-// ── FORM
-function sendForm(e){
-  e.preventDefault();
-  const m=document.getElementById('fmsg');
-  m.className='fmsg ok';m.style.display='block';
-  m.textContent='ありがとうございます。（送信機能の実装はFormspree等をご利用ください）';
-  setTimeout(()=>m.style.display='none',6000);
-}
 </script>
 </body>
 </html>
