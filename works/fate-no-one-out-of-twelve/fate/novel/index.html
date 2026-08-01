@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>小説を読む — Fate／Last One Standing</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&family=Rajdhani:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --acc:#b9a6f0;--acc-dim:#8271b8;--acc2:#7fd8e8;
+  --text:#eae6f5;--text-dim:#a79cc4;
+  --surface:#0a0817;--surface2:#100c1e;--surface3:#161029;
+  --border:rgba(185,166,240,0.22);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:#06050f;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:16px;line-height:1.8;}
+a{color:var(--acc2);}
+.wrap{max-width:740px;margin:0 auto;padding:6.5rem 1.5rem 6rem;}
+header.top{position:fixed;top:0;left:0;right:0;z-index:10;padding:1rem 1.5rem;background:rgba(6,5,15,.92);border-bottom:1px solid var(--border);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:space-between;}
+.top a.back{font-family:'Rajdhani',sans-serif;font-size:13px;letter-spacing:.15em;text-transform:uppercase;color:var(--text-dim);text-decoration:none;}
+.top a.back:hover{color:var(--acc);}
+.top .worklabel{font-family:'Cinzel',serif;font-size:12px;letter-spacing:.2em;color:var(--acc);text-transform:uppercase;}
+h1.pagetitle{font-family:'Cinzel',serif;font-weight:700;font-size:clamp(26px,5vw,40px);color:#fff;margin-bottom:.4rem;}
+.sub{color:var(--text-dim);font-family:'Crimson Pro',serif;font-style:italic;margin-bottom:2.5rem;font-size:17px;}
+.toc-list{display:flex;flex-direction:column;border-top:1px solid var(--border);}
+.toc-item{display:flex;align-items:baseline;gap:1rem;padding:1.1rem .5rem;border-bottom:1px solid var(--border);text-decoration:none;color:var(--text);transition:background .2s;}
+.toc-item:hover{background:rgba(185,166,240,.06);}
+.toc-num{font-family:'Cinzel',serif;color:var(--acc);font-size:13px;min-width:2.4em;}
+.toc-title{flex:1;font-size:17px;}
+.toc-date{font-size:12px;color:var(--text-dim);white-space:nowrap;}
+.empty{padding:3.5rem 0;text-align:center;color:var(--text-dim);font-family:'Crimson Pro',serif;font-style:italic;font-size:17px;}
+.chapter-head{margin-bottom:2.5rem;}
+.chapter-num{font-family:'Rajdhani',sans-serif;letter-spacing:.4em;font-size:11px;color:var(--acc);text-transform:uppercase;margin-bottom:.6rem;}
+.chapter-title{font-family:'Cinzel',serif;font-weight:700;font-size:clamp(22px,4vw,32px);color:#fff;line-height:1.4;}
+.chapter-date{font-size:12px;color:var(--text-dim);margin-top:.6rem;}
+.chapter-body p{margin-bottom:1.4em;font-size:17px;color:var(--text);}
+.chapter-nav{display:flex;justify-content:space-between;gap:1rem;margin-top:3.5rem;padding-top:2rem;border-top:1px solid var(--border);}
+.chapter-nav a{font-size:13px;letter-spacing:.05em;color:var(--text-dim);text-decoration:none;border:1px solid var(--border);padding:.8rem 1.1rem;flex:1;text-align:center;transition:all .2s;}
+.chapter-nav a:hover{border-color:var(--acc);color:var(--acc);}
+.chapter-nav a.disabled{opacity:.25;pointer-events:none;}
+.toc-return{display:inline-block;margin-top:2rem;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--text-dim);text-decoration:none;}
+.toc-return:hover{color:var(--acc);}
+#view-chapter{display:none;}
+</style>
+</head>
+<body>
+<header class="top">
+  <a class="back" href="../index.html">← 作品ページへ戻る</a>
+  <span class="worklabel">Fate／Last One Standing</span>
+</header>
+<div class="wrap">
+
+  <section id="view-toc">
+    <h1 class="pagetitle">小説を読む</h1>
+    <p class="sub">十二の英霊が、一つの街に集う。</p>
+    <div class="toc-list" id="tocList"></div>
+  </section>
+
+  <section id="view-chapter">
+    <div class="chapter-head">
+      <div class="chapter-num" id="chNum"></div>
+      <h1 class="chapter-title" id="chTitle"></h1>
+      <div class="chapter-date" id="chDate"></div>
+    </div>
+    <div class="chapter-body" id="chBody"></div>
+    <div class="chapter-nav">
+      <a href="#" id="prevBtn">前の話</a>
+      <a href="#" id="nextBtn">次の話</a>
+    </div>
+    <a href="#toc" class="toc-return">目次に戻る</a>
+  </section>
+
+</div>
+
+<script>
+let CHAPTERS = [];
+const WORK_TITLE = 'Fate／Last One Standing';
+
+function esc(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function renderBody(text){
+  return String(text).split(/\n\s*\n/).map(p => '<p>' + esc(p.trim()).replace(/\n/g,'<br>') + '</p>').join('');
+}
+function renderToc(){
+  const list = document.getElementById('tocList');
+  const pub = CHAPTERS.filter(c => c.published);
+  if(pub.length === 0){
+    list.innerHTML = '<div class="empty">只今準備中です。公開され次第、ここに一覧が表示されます。</div>';
+    return;
+  }
+  list.innerHTML = pub.map(c =>
+    '<a class="toc-item" href="#ch-' + c.id + '">' +
+      '<span class="toc-num">第' + c.id + '話</span>' +
+      '<span class="toc-title">' + esc(c.title) + '</span>' +
+      '<span class="toc-date">' + esc(c.date || '') + '</span>' +
+    '</a>'
+  ).join('');
+}
+function showToc(){
+  document.getElementById('view-toc').style.display = '';
+  document.getElementById('view-chapter').style.display = 'none';
+  document.title = '小説を読む — ' + WORK_TITLE;
+}
+function showChapter(id){
+  const pub = CHAPTERS.filter(c => c.published);
+  const idx = pub.findIndex(c => c.id === id);
+  if(idx === -1){ showToc(); return; }
+  const c = pub[idx];
+  document.getElementById('chNum').textContent = '第' + c.id + '話';
+  document.getElementById('chTitle').textContent = c.title;
+  document.getElementById('chDate').textContent = c.date || '';
+  document.getElementById('chBody').innerHTML = renderBody(c.body || '');
+  const prev = pub[idx-1], next = pub[idx+1];
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  if(prev){ prevBtn.href = '#ch-'+prev.id; prevBtn.classList.remove('disabled'); prevBtn.textContent = '← ' + prev.title; }
+  else { prevBtn.classList.add('disabled'); prevBtn.textContent = ''; }
+  if(next){ nextBtn.href = '#ch-'+next.id; nextBtn.classList.remove('disabled'); nextBtn.textContent = next.title + ' →'; }
+  else { nextBtn.classList.add('disabled'); nextBtn.textContent = ''; }
+  document.getElementById('view-toc').style.display = 'none';
+  document.getElementById('view-chapter').style.display = '';
+  document.title = c.title + ' — ' + WORK_TITLE;
+  window.scrollTo(0,0);
+}
+function route(){
+  const m = location.hash.match(/^#ch-(\d+)/);
+  if(m){ showChapter(parseInt(m[1],10)); } else { showToc(); }
+}
+fetch('./chapters.json').then(r => r.json()).then(data => {
+  CHAPTERS = (data.chapters || []).slice().sort((a,b) => a.id - b.id);
+  renderToc();
+  route();
+}).catch(() => {
+  document.getElementById('tocList').innerHTML = '<div class="empty">読み込みに失敗しました。時間をおいて再度お試しください。</div>';
+});
+window.addEventListener('hashchange', route);
+</script>
+</body>
+</html>

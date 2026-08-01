@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>小説管理画面 — sashiemichkazu.github.io</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --acc:#7fd8e8;--acc2:#b9a6f0;
+  --text:#eae6f5;--text-dim:#8f8aa3;
+  --surface:#0d0c14;--surface2:#151320;--surface3:#1c1a2b;
+  --border:rgba(255,255,255,0.1);
+  --danger:#ef6f6f;--ok:#7fe8a8;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--surface);color:var(--text);font-family:'Rajdhani',sans-serif;font-size:15px;line-height:1.6;min-height:100vh;}
+.wrap{max-width:920px;margin:0 auto;padding:2.5rem 1.5rem 5rem;}
+h1{font-size:22px;font-weight:700;margin-bottom:.3rem;}
+.lead{color:var(--text-dim);font-size:14px;margin-bottom:2rem;}
+.panel{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:1.5rem;margin-bottom:1.5rem;}
+.panel h2{font-size:15px;font-weight:600;margin-bottom:1rem;color:var(--acc);letter-spacing:.02em;}
+.row{display:flex;gap:.7rem;flex-wrap:wrap;align-items:center;}
+label{display:block;font-size:12px;color:var(--text-dim);margin-bottom:.3rem;letter-spacing:.03em;}
+input[type=text],input[type=password],input[type=number],input[type=date],select,textarea{
+  background:var(--surface3);border:1px solid var(--border);color:var(--text);
+  font-family:'Rajdhani',sans-serif;font-size:15px;padding:.6rem .8rem;border-radius:6px;outline:none;width:100%;
+}
+input:focus,select:focus,textarea:focus{border-color:var(--acc);}
+textarea{resize:vertical;min-height:260px;line-height:1.8;font-size:15.5px;}
+button{
+  font-family:'Rajdhani',sans-serif;font-weight:600;letter-spacing:.02em;font-size:14px;
+  padding:.65rem 1.3rem;border-radius:6px;border:1px solid var(--acc);background:rgba(127,216,232,.12);
+  color:var(--acc);cursor:pointer;transition:all .2s;
+}
+button:hover{background:rgba(127,216,232,.25);}
+button.secondary{border-color:var(--border);background:transparent;color:var(--text-dim);}
+button.secondary:hover{border-color:var(--text-dim);color:var(--text);}
+button.danger{border-color:var(--danger);color:var(--danger);background:rgba(239,111,111,.08);}
+button.danger:hover{background:rgba(239,111,111,.2);}
+button:disabled{opacity:.4;cursor:not-allowed;}
+.status{font-size:13px;padding:.4rem .8rem;border-radius:6px;display:inline-block;}
+.status.ok{background:rgba(127,232,168,.12);color:var(--ok);}
+.status.bad{background:rgba(239,111,111,.12);color:var(--danger);}
+.status.idle{background:var(--surface3);color:var(--text-dim);}
+details{margin-top:.8rem;}
+summary{cursor:pointer;font-size:13px;color:var(--text-dim);}
+.help{font-size:13px;color:var(--text-dim);line-height:1.9;margin-top:.6rem;padding:.9rem 1rem;background:var(--surface3);border-radius:6px;}
+.help ol{padding-left:1.2rem;}
+.help code{background:rgba(255,255,255,.08);padding:.1rem .4rem;border-radius:4px;font-size:12px;}
+table{width:100%;border-collapse:collapse;margin-top:.5rem;}
+th,td{text-align:left;padding:.6rem .5rem;border-bottom:1px solid var(--border);font-size:14px;}
+th{color:var(--text-dim);font-weight:600;font-size:12px;letter-spacing:.05em;text-transform:uppercase;}
+.badge{font-size:11px;padding:.2rem .55rem;border-radius:20px;letter-spacing:.03em;}
+.badge.pub{background:rgba(127,232,168,.15);color:var(--ok);}
+.badge.draft{background:rgba(255,255,255,.08);color:var(--text-dim);}
+.rowbtns{display:flex;gap:.4rem;}
+.rowbtns button{padding:.4rem .8rem;font-size:12.5px;}
+.empty-row{color:var(--text-dim);text-align:center;padding:2rem 0;}
+.field{margin-bottom:1rem;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+@media(max-width:600px){.grid2{grid-template-columns:1fr;}}
+#editPanel{display:none;}
+.linkline{margin-top:1rem;font-size:13px;}
+.linkline a{color:var(--acc2);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>小説 管理画面</h1>
+  <p class="lead">Fate と Star Wars の小説本文を、このブラウザから直接GitHubへ保存できます。</p>
+
+  <!-- 接続設定 -->
+  <div class="panel">
+    <h2>① GitHubへの接続</h2>
+    <div class="field">
+      <label>アクセストークン（Personal Access Token）</label>
+      <input type="password" id="tokenInput" placeholder="github_pat_... または ghp_...">
+    </div>
+    <div class="row">
+      <button onclick="connect()">接続する</button>
+      <button class="secondary" onclick="disconnect()">記憶を削除してログアウト</button>
+      <span class="status idle" id="connStatus">未接続</span>
+    </div>
+    <details>
+      <summary>トークンの作り方（初回のみ）</summary>
+      <div class="help">
+        <ol>
+          <li>GitHubにログイン → 右上のアイコン → <b>Settings</b></li>
+          <li>左メニュー最下部の <b>Developer settings</b> → <b>Personal access tokens</b> → <b>Fine-grained tokens</b></li>
+          <li><b>Generate new token</b> をクリック</li>
+          <li>Repository access は「Only select repositories」を選び、<code>sashiemichkazu.github.io</code> を選択</li>
+          <li>Permissions → Repository permissions → <b>Contents</b> を「Read and write」に設定</li>
+          <li>生成されたトークン（<code>github_pat_...</code>）をコピーして、上の欄に貼り付け「接続する」を押す</li>
+        </ol>
+        トークンはこのブラウザ（このパソコンのこのブラウザ）だけに保存され、GitHub以外のどこにも送信されません。他の人が使うパソコンでは「記憶を削除してログアウト」を押してから離れてください。
+      </div>
+    </details>
+  </div>
+
+  <!-- 作品選択 -->
+  <div class="panel">
+    <h2>② 作品を選ぶ</h2>
+    <div class="row">
+      <select id="workSelect" style="max-width:280px;">
+        <option value="fate">Fate／Last One Standing</option>
+        <option value="starwars">STAR WARS: EVIL PALADIN</option>
+      </select>
+      <button onclick="loadChapters()">章一覧を読み込む</button>
+      <span class="status idle" id="loadStatus"></span>
+    </div>
+    <div class="linkline" id="viewLink"></div>
+  </div>
+
+  <!-- 章一覧 -->
+  <div class="panel" id="listPanel" style="display:none;">
+    <h2>③ 章一覧</h2>
+    <button onclick="openEditor(null)">＋ 新しい章を追加</button>
+    <table>
+      <thead><tr><th>話数</th><th>タイトル</th><th>日付</th><th>状態</th><th></th></tr></thead>
+      <tbody id="chapterRows"></tbody>
+    </table>
+  </div>
+
+  <!-- 編集フォーム -->
+  <div class="panel" id="editPanel">
+    <h2 id="editTitle">章を編集</h2>
+    <div class="grid2">
+      <div class="field">
+        <label>話数（数字）</label>
+        <input type="number" id="fId" min="1" step="1">
+      </div>
+      <div class="field">
+        <label>日付（任意）</label>
+        <input type="date" id="fDate">
+      </div>
+    </div>
+    <div class="field">
+      <label>タイトル</label>
+      <input type="text" id="fTitle" placeholder="例：第1話 夜が招く">
+    </div>
+    <div class="field">
+      <label>本文（段落の間は空行で区切ってください）</label>
+      <textarea id="fBody" placeholder="本文をここに貼り付けてください..."></textarea>
+    </div>
+    <div class="field">
+      <label style="display:flex;align-items:center;gap:.5rem;"><input type="checkbox" id="fPublished" style="width:auto;"> 公開する（チェックを外すと下書きとして保存されます）</label>
+    </div>
+    <div class="row">
+      <button onclick="saveChapter()">保存してGitHubへ反映</button>
+      <button class="secondary" onclick="closeEditor()">キャンセル</button>
+      <button class="danger" id="deleteBtn" onclick="deleteChapter()" style="display:none;">この章を削除</button>
+      <span class="status idle" id="saveStatus"></span>
+    </div>
+  </div>
+</div>
+
+<script>
+const OWNER='sashiemichkazu', REPO='sashiemichkazu.github.io', BRANCH='main';
+const WORKS={
+  fate:{ label:'Fate／Last One Standing', path:'works/fate-no-one-out-of-twelve/fate/novel/chapters.json', view:'../works/fate-no-one-out-of-twelve/fate/novel/index.html' },
+  starwars:{ label:'STAR WARS: EVIL PALADIN', path:'works/star-wars-evil-paladin/novel/chapters.json', view:'../works/star-wars-evil-paladin/novel/index.html' }
+};
+
+let currentData = null;   // { chapters: [...] }
+let currentSha = null;
+let editingId = null;     // null = new
+
+function b64EncodeUtf8(str){
+  const bytes = new TextEncoder().encode(str);
+  let binary = '';
+  bytes.forEach(b => binary += String.fromCharCode(b));
+  return btoa(binary);
+}
+function b64DecodeUtf8(b64){
+  const binary = atob(b64.replace(/\n/g,''));
+  const bytes = Uint8Array.from(binary, c => c.charCodeAt(0));
+  return new TextDecoder().decode(bytes);
+}
+function getToken(){ return localStorage.getItem('novelAdminToken') || ''; }
+function setStatus(el, text, kind){
+  el.textContent = text;
+  el.className = 'status ' + kind;
+}
+
+function connect(){
+  const t = document.getElementById('tokenInput').value.trim();
+  if(!t){ alert('トークンを入力してください'); return; }
+  localStorage.setItem('novelAdminToken', t);
+  document.getElementById('tokenInput').value = '';
+  checkConnection();
+}
+function disconnect(){
+  localStorage.removeItem('novelAdminToken');
+  checkConnection();
+}
+async function checkConnection(){
+  const el = document.getElementById('connStatus');
+  const t = getToken();
+  if(!t){ setStatus(el,'未接続','idle'); return; }
+  try{
+    const r = await fetch('https://api.github.com/user', { headers:{ Authorization:'Bearer '+t, Accept:'application/vnd.github+json' } });
+    if(r.ok){
+      const u = await r.json();
+      setStatus(el, '接続中：' + u.login, 'ok');
+    } else {
+      setStatus(el, '認証に失敗しました（トークンを確認してください）', 'bad');
+    }
+  } catch(e){
+    setStatus(el, '通信に失敗しました', 'bad');
+  }
+}
+
+async function apiGet(path){
+  const t = getToken();
+  const r = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${path}?ref=${BRANCH}`, {
+    headers:{ Authorization:'Bearer '+t, Accept:'application/vnd.github+json' }
+  });
+  if(!r.ok){ throw new Error('GET failed: ' + r.status); }
+  return r.json();
+}
+async function apiPut(path, contentStr, sha, message){
+  const t = getToken();
+  const body = { message, content: b64EncodeUtf8(contentStr), branch: BRANCH };
+  if(sha) body.sha = sha;
+  const r = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${path}`, {
+    method:'PUT',
+    headers:{ Authorization:'Bearer '+t, Accept:'application/vnd.github+json', 'Content-Type':'application/json' },
+    body: JSON.stringify(body)
+  });
+  if(!r.ok){
+    const err = await r.json().catch(()=>({}));
+    throw new Error('PUT failed: ' + r.status + ' ' + (err.message||''));
+  }
+  return r.json();
+}
+
+async function loadChapters(){
+  const el = document.getElementById('loadStatus');
+  const work = document.getElementById('workSelect').value;
+  const cfg = WORKS[work];
+  document.getElementById('viewLink').innerHTML = '公開ページ: <a href="'+cfg.view+'" target="_blank">'+cfg.view+'</a>';
+  if(!getToken()){ setStatus(el,'先にGitHubへ接続してください','bad'); return; }
+  setStatus(el, '読み込み中…', 'idle');
+  try{
+    const file = await apiGet(cfg.path);
+    currentSha = file.sha;
+    currentData = JSON.parse(b64DecodeUtf8(file.content));
+    if(!currentData.chapters) currentData.chapters = [];
+    renderList();
+    document.getElementById('listPanel').style.display = '';
+    setStatus(el, '読み込み完了（' + currentData.chapters.length + '話）', 'ok');
+  } catch(e){
+    setStatus(el, '読み込みに失敗しました：' + e.message, 'bad');
+  }
+}
+
+function renderList(){
+  const tbody = document.getElementById('chapterRows');
+  const chapters = currentData.chapters.slice().sort((a,b)=>a.id-b.id);
+  if(chapters.length === 0){
+    tbody.innerHTML = '<tr><td colspan="5" class="empty-row">まだ章がありません。「＋ 新しい章を追加」から作成してください。</td></tr>';
+    return;
+  }
+  tbody.innerHTML = chapters.map(c => `
+    <tr>
+      <td>第${c.id}話</td>
+      <td>${escapeHtml(c.title)}</td>
+      <td>${escapeHtml(c.date||'')}</td>
+      <td><span class="badge ${c.published?'pub':'draft'}">${c.published?'公開中':'下書き'}</span></td>
+      <td class="rowbtns">
+        <button class="secondary" onclick="openEditor(${c.id})">編集</button>
+      </td>
+    </tr>
+  `).join('');
+}
+function escapeHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function openEditor(id){
+  editingId = id;
+  const panel = document.getElementById('editPanel');
+  panel.style.display = '';
+  panel.scrollIntoView({behavior:'smooth'});
+  document.getElementById('saveStatus').textContent = '';
+  document.getElementById('saveStatus').className = 'status idle';
+  if(id === null){
+    document.getElementById('editTitle').textContent = '新しい章を追加';
+    const nextId = currentData.chapters.length ? Math.max(...currentData.chapters.map(c=>c.id))+1 : 1;
+    document.getElementById('fId').value = nextId;
+    document.getElementById('fTitle').value = '';
+    document.getElementById('fDate').value = new Date().toISOString().slice(0,10);
+    document.getElementById('fBody').value = '';
+    document.getElementById('fPublished').checked = true;
+    document.getElementById('deleteBtn').style.display = 'none';
+  } else {
+    const c = currentData.chapters.find(c => c.id === id);
+    document.getElementById('editTitle').textContent = '第' + c.id + '話を編集';
+    document.getElementById('fId').value = c.id;
+    document.getElementById('fTitle').value = c.title;
+    document.getElementById('fDate').value = c.date || '';
+    document.getElementById('fBody').value = c.body || '';
+    document.getElementById('fPublished').checked = !!c.published;
+    document.getElementById('deleteBtn').style.display = '';
+  }
+}
+function closeEditor(){
+  document.getElementById('editPanel').style.display = 'none';
+  editingId = null;
+}
+
+async function saveChapter(){
+  const el = document.getElementById('saveStatus');
+  const id = parseInt(document.getElementById('fId').value, 10);
+  const title = document.getElementById('fTitle').value.trim();
+  const date = document.getElementById('fDate').value;
+  const body = document.getElementById('fBody').value;
+  const published = document.getElementById('fPublished').checked;
+  if(!id || !title){ alert('話数とタイトルは必須です'); return; }
+
+  const dup = currentData.chapters.find(c => c.id === id && c.id !== editingId);
+  if(dup){ alert('その話数はすでに使われています'); return; }
+
+  const newChapter = { id, title, date, published, body };
+  if(editingId === null){
+    currentData.chapters.push(newChapter);
+  } else {
+    const idx = currentData.chapters.findIndex(c => c.id === editingId);
+    currentData.chapters[idx] = newChapter;
+  }
+  await persist(el, '小説更新: 第' + id + '話「' + title + '」を保存');
+}
+
+async function deleteChapter(){
+  if(editingId === null) return;
+  if(!confirm('第' + editingId + '話を削除します。よろしいですか？')) return;
+  currentData.chapters = currentData.chapters.filter(c => c.id !== editingId);
+  await persist(document.getElementById('saveStatus'), '小説更新: 第' + editingId + '話を削除');
+}
+
+async function persist(statusEl, message){
+  const work = document.getElementById('workSelect').value;
+  const cfg = WORKS[work];
+  setStatus(statusEl, '保存中…', 'idle');
+  try{
+    // 直前の最新shaを取り直して競合を防ぐ
+    const latest = await apiGet(cfg.path);
+    const result = await apiPut(cfg.path, JSON.stringify(currentData, null, 2), latest.sha, message);
+    currentSha = result.content.sha;
+    renderList();
+    closeEditor();
+    setStatus(statusEl, '保存しました。数十秒後にサイトに反映されます。', 'ok');
+  } catch(e){
+    setStatus(statusEl, '保存に失敗しました：' + e.message, 'bad');
+  }
+}
+
+checkConnection();
+</script>
+</body>
+</html>
