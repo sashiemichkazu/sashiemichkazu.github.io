@@ -387,7 +387,11 @@ async function saveChapter(){
   if(!id || !title){ alert('話数とタイトルは必須です'); return; }
 
   const dup = currentData.chapters.find(c => c.id === id && c.id !== editingId);
-  if(dup){ alert('その話数はすでに使われています'); return; }
+  if(dup){
+    const overwrite = confirm('第' + id + '話はすでに存在します。上書き保存しますか？');
+    if(!overwrite) return;
+    currentData.chapters = currentData.chapters.filter(c => c.id !== id);
+  }
 
   const newChapter = { id, title, date, published, body };
   if(editingId === null){
