@@ -120,7 +120,7 @@ function showChapter(id){
   if(next){ nextBtn.href = '#ch-'+next.id; nextBtn.classList.remove('disabled'); nextBtn.textContent = next.title + ' →'; }
   else { nextBtn.classList.add('disabled'); nextBtn.textContent = ''; }
   document.getElementById('view-toc').style.display = 'none';
-  document.getElementById('view-chapter').style.display = '';
+  document.getElementById('view-chapter').style.display = 'block';
   document.title = c.title + ' — ' + WORK_TITLE;
   window.scrollTo(0,0);
 }
@@ -128,7 +128,7 @@ function route(){
   const m = location.hash.match(/^#ch-(\d+)/);
   if(m){ showChapter(parseInt(m[1],10)); } else { showToc(); }
 }
-fetch('./chapters.json').then(r => r.json()).then(data => {
+fetch('./chapters.json?t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()).then(data => {
   CHAPTERS = (data.chapters || []).slice().sort((a,b) => a.id - b.id);
   renderToc();
   route();
