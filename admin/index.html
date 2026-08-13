@@ -279,7 +279,7 @@ function escapeHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt
 function openEditor(id){
   editingId = id;
   const panel = document.getElementById('editPanel');
-  panel.style.display = '';
+  panel.style.display = 'block';
   panel.scrollIntoView({behavior:'smooth'});
   document.getElementById('saveStatus').textContent = '';
   document.getElementById('saveStatus').className = 'status idle';
