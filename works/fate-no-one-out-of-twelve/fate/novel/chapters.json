@@ -1,12 +1,4 @@
 {
   "workTitle": "Fate／Last One Standing",
-  "chapters": [
-    {
-      "id": 1,
-      "title": "test",
-      "date": "2026-08-13",
-      "published": true,
-      "body": "テスト"
-    }
-  ]
+  "chapters": []
 }
