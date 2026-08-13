@@ -64,6 +64,8 @@ th{color:var(--text-dim);font-weight:600;font-size:12px;letter-spacing:.05em;tex
 .linkline{margin-top:1rem;font-size:13px;}
 .linkline a{color:var(--acc2);}
 </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 </head>
 <body>
 <div class="wrap">
@@ -136,6 +138,15 @@ th{color:var(--text-dim);font-weight:600;font-size:12px;letter-spacing:.05em;tex
       </div>
     </div>
     <div class="field">
+      <label>Word（.docx）または PDFから読み込む（任意）</label>
+      <input type="file" id="fUpload" accept=".docx,.pdf">
+      <span class="status idle" id="uploadStatus" style="margin-top:.5rem;display:inline-block;"></span>
+      <div class="help" style="margin-top:.6rem;">
+        ファイルを選ぶと、ファイル名（拡張子を除く）が「タイトル」に、文書の内容が「本文」に自動で入力されます。<br>
+        PDFの場合、元のレイアウト次第で段落の区切りがずれることがあるので、読み込み後に本文欄で確認・調整してください。
+      </div>
+    </div>
+    <div class="field">
       <label>タイトル</label>
       <input type="text" id="fTitle" placeholder="例：第1話 夜が招く">
     </div>
@@ -165,6 +176,64 @@ const WORKS={
 let currentData = null;   // { chapters: [...] }
 let currentSha = null;
 let editingId = null;     // null = new
+
+if(window.pdfjsLib){
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+}
+
+async function handleFileUpload(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const statusEl = document.getElementById('uploadStatus');
+  const nameNoExt = file.name.replace(/\.[^/.]+$/, '');
+  document.getElementById('fTitle').value = nameNoExt;
+  const ext = file.name.split('.').pop().toLowerCase();
+  setStatus(statusEl, '読み込み中…', 'idle');
+  try{
+    let text = '';
+    if(ext === 'docx'){
+      const arrayBuffer = await file.arrayBuffer();
+      const result = await mammoth.extractRawText({ arrayBuffer });
+      text = result.value
+        .split(/\n+/)
+        .map(s => s.trim())
+        .filter(s => s.length > 0)
+        .join('\n\n');
+    } else if(ext === 'pdf'){
+      const arrayBuffer = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      const lines = [];
+      for(let p = 1; p <= pdf.numPages; p++){
+        const page = await pdf.getPage(p);
+        const content = await page.getTextContent();
+        let line = '';
+        content.items.forEach(item => {
+          line += item.str;
+          if(item.hasEOL){
+            lines.push(line);
+            line = '';
+          }
+        });
+        if(line) lines.push(line);
+      }
+      text = lines.map(s => s.trim()).filter(s => s.length > 0).join('\n');
+    } else {
+      setStatus(statusEl, '対応していないファイル形式です（.docx / .pdfのみ）', 'bad');
+      e.target.value = '';
+      return;
+    }
+    document.getElementById('fBody').value = text;
+    setStatus(statusEl, '読み込み完了：' + file.name, 'ok');
+  } catch(err){
+    setStatus(statusEl, '読み込みに失敗しました：' + err.message, 'bad');
+  } finally {
+    e.target.value = '';
+  }
+}
+document.addEventListener('DOMContentLoaded', () => {
+  const up = document.getElementById('fUpload');
+  if(up) up.addEventListener('change', handleFileUpload);
+});
 
 function b64EncodeUtf8(str){
   const bytes = new TextEncoder().encode(str);
