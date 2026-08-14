@@ -802,12 +802,15 @@ const _b=document.getElementById('audio-btn');
 _b.textContent='音声OFF';
 _b.style.opacity='.6';
 
-// 何らかの理由で止まったら自動で再起動（ミュートで）
+// 何らかの理由で止まったら自動で再起動（音声の状態はそのまま維持する）
 _v.addEventListener('pause',()=>{
-  _v.muted=true;
-  _b.textContent='音声OFF';
-  _b.style.opacity='.6';
-  _v.play().catch(()=>{});
+  _v.play().catch(()=>{
+    // 音声ありでの再生が拒否された場合のみミュートに戻して再試行
+    _v.muted=true;
+    _b.textContent='音声OFF';
+    _b.style.opacity='.6';
+    _v.play().catch(()=>{});
+  });
 });
 
 function toggleAudio(){
