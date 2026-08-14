@@ -147,12 +147,31 @@ th{color:var(--text-dim);font-weight:600;font-size:12px;letter-spacing:.05em;tex
       </div>
     </div>
     <div class="field">
+      <label>トップ画像（任意・章の先頭に表示されます）</label>
+      <input type="file" id="fCoverUpload" accept="image/*">
+      <span class="status idle" id="coverStatus" style="margin-top:.5rem;display:inline-block;"></span>
+      <div id="coverPreviewWrap" style="display:none;margin-top:.7rem;">
+        <img id="coverPreview" style="max-width:260px;border-radius:8px;display:block;">
+        <button type="button" class="secondary" onclick="removeCoverImage()" style="margin-top:.5rem;">画像を外す</button>
+      </div>
+    </div>
+    <div class="field">
       <label>タイトル</label>
       <input type="text" id="fTitle" placeholder="例：第1話 夜が招く">
     </div>
     <div class="field">
       <label>本文（段落の間は空行で区切ってください）</label>
       <textarea id="fBody" placeholder="本文をここに貼り付けてください..."></textarea>
+      <div class="row" style="margin-top:.6rem;">
+        <label class="secondary" style="display:inline-block;border:1px solid var(--border);padding:.55rem 1rem;border-radius:6px;cursor:pointer;color:var(--text-dim);font-size:13px;">
+          ＋ 本文に画像を挿入
+          <input type="file" id="fInlineImageUpload" accept="image/*" style="display:none;">
+        </label>
+        <span class="status idle" id="inlineImageStatus"></span>
+      </div>
+      <div class="help" style="margin-top:.6rem;">
+        カーソルのある位置に画像が挿入されます。挿入位置は本文欄の中で自由に動かせます（<code>![](images/...)</code> という行がその画像の場所です）。
+      </div>
     </div>
     <div class="field">
       <label style="display:flex;align-items:center;gap:.5rem;"><input type="checkbox" id="fPublished" style="width:auto;"> 公開する（チェックを外すと下書きとして保存されます）</label>
@@ -169,13 +188,14 @@ th{color:var(--text-dim);font-weight:600;font-size:12px;letter-spacing:.05em;tex
 <script>
 const OWNER='sashiemichkazu', REPO='sashiemichkazu.github.io', BRANCH='main';
 const WORKS={
-  fate:{ label:'Fate／Last One Standing', path:'works/fate-no-one-out-of-twelve/fate/novel/chapters.json', view:'../works/fate-no-one-out-of-twelve/fate/novel/index.html' },
-  starwars:{ label:'STAR WARS: EVIL PALADIN', path:'works/star-wars-evil-paladin/novel/chapters.json', view:'../works/star-wars-evil-paladin/novel/index.html' }
+  fate:{ label:'Fate／Last One Standing', path:'works/fate-no-one-out-of-twelve/fate/novel/chapters.json', imagesDir:'works/fate-no-one-out-of-twelve/fate/novel/images', view:'../works/fate-no-one-out-of-twelve/fate/novel/index.html' },
+  starwars:{ label:'STAR WARS: EVIL PALADIN', path:'works/star-wars-evil-paladin/novel/chapters.json', imagesDir:'works/star-wars-evil-paladin/novel/images', view:'../works/star-wars-evil-paladin/novel/index.html' }
 };
 
 let currentData = null;   // { chapters: [...] }
 let currentSha = null;
 let editingId = null;     // null = new
+let currentCoverPath = null; // 編集中の章のトップ画像パス（相対）
 
 if(window.pdfjsLib){
   pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
@@ -230,9 +250,92 @@ async function handleFileUpload(e){
     e.target.value = '';
   }
 }
+function fileToBase64(file){
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(',')[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+async function uploadImageFile(file, messagePrefix){
+  const work = document.getElementById('workSelect').value;
+  const cfg = WORKS[work];
+  const t = getToken();
+  if(!t) throw new Error('先にGitHubへ接続してください');
+  const safeName = file.name.replace(/[^\w.\-]/g, '_');
+  const fullPath = cfg.imagesDir + '/' + Date.now() + '-' + safeName;
+  const base64 = await fileToBase64(file);
+  const r = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${fullPath}`, {
+    method:'PUT',
+    headers:{ Authorization:'Bearer '+t, Accept:'application/vnd.github+json', 'Content-Type':'application/json' },
+    body: JSON.stringify({ message: (messagePrefix||'画像をアップロード') + ': ' + safeName, content: base64, branch: BRANCH })
+  });
+  if(!r.ok){
+    const err = await r.json().catch(()=>({}));
+    throw new Error('アップロードに失敗しました：' + r.status + ' ' + (err.message||''));
+  }
+  // novel/index.html から見た相対パス（images/以下）を返す
+  return 'images/' + fullPath.slice(cfg.imagesDir.length + 1);
+}
+
+async function handleCoverUpload(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const statusEl = document.getElementById('coverStatus');
+  setStatus(statusEl, 'アップロード中…', 'idle');
+  try{
+    const relPath = await uploadImageFile(file, 'トップ画像をアップロード');
+    currentCoverPath = relPath;
+    const work = document.getElementById('workSelect').value;
+    const cfg = WORKS[work];
+    const fullPath = cfg.imagesDir + '/' + relPath.slice('images/'.length);
+    document.getElementById('coverPreview').src = `https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/${fullPath}`;
+    document.getElementById('coverPreviewWrap').style.display = '';
+    setStatus(statusEl, 'アップロード完了', 'ok');
+  } catch(err){
+    setStatus(statusEl, err.message, 'bad');
+  } finally {
+    e.target.value = '';
+  }
+}
+function removeCoverImage(){
+  currentCoverPath = null;
+  document.getElementById('coverPreviewWrap').style.display = 'none';
+  document.getElementById('coverPreview').src = '';
+}
+
+async function handleInlineImageUpload(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const statusEl = document.getElementById('inlineImageStatus');
+  setStatus(statusEl, 'アップロード中…', 'idle');
+  try{
+    const relPath = await uploadImageFile(file, '本文用画像をアップロード');
+    const snippet = '\n\n![](' + relPath + ')\n\n';
+    const ta = document.getElementById('fBody');
+    const start = ta.selectionStart != null ? ta.selectionStart : ta.value.length;
+    const end = ta.selectionEnd != null ? ta.selectionEnd : ta.value.length;
+    ta.value = ta.value.slice(0, start) + snippet + ta.value.slice(end);
+    const newPos = start + snippet.length;
+    ta.focus();
+    ta.setSelectionRange(newPos, newPos);
+    setStatus(statusEl, '挿入しました', 'ok');
+  } catch(err){
+    setStatus(statusEl, err.message, 'bad');
+  } finally {
+    e.target.value = '';
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   const up = document.getElementById('fUpload');
   if(up) up.addEventListener('change', handleFileUpload);
+  const cu = document.getElementById('fCoverUpload');
+  if(cu) cu.addEventListener('change', handleCoverUpload);
+  const iu = document.getElementById('fInlineImageUpload');
+  if(iu) iu.addEventListener('change', handleInlineImageUpload);
 });
 
 function b64EncodeUtf8(str){
@@ -361,6 +464,9 @@ function openEditor(id){
     document.getElementById('fBody').value = '';
     document.getElementById('fPublished').checked = true;
     document.getElementById('deleteBtn').style.display = 'none';
+    currentCoverPath = null;
+    document.getElementById('coverPreviewWrap').style.display = 'none';
+    document.getElementById('coverPreview').src = '';
   } else {
     const c = currentData.chapters.find(c => c.id === id);
     document.getElementById('editTitle').textContent = '第' + c.id + '話を編集';
@@ -370,6 +476,17 @@ function openEditor(id){
     document.getElementById('fBody').value = c.body || '';
     document.getElementById('fPublished').checked = !!c.published;
     document.getElementById('deleteBtn').style.display = '';
+    currentCoverPath = c.coverImage || null;
+    if(currentCoverPath){
+      const work = document.getElementById('workSelect').value;
+      const cfg = WORKS[work];
+      const fullPath = cfg.imagesDir + '/' + currentCoverPath.slice('images/'.length);
+      document.getElementById('coverPreview').src = `https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/${fullPath}`;
+      document.getElementById('coverPreviewWrap').style.display = '';
+    } else {
+      document.getElementById('coverPreviewWrap').style.display = 'none';
+      document.getElementById('coverPreview').src = '';
+    }
   }
 }
 function closeEditor(){
@@ -393,7 +510,7 @@ async function saveChapter(){
     currentData.chapters = currentData.chapters.filter(c => c.id !== id);
   }
 
-  const newChapter = { id, title, date, published, body };
+  const newChapter = { id, title, date, published, body, coverImage: currentCoverPath || null };
   if(editingId === null){
     currentData.chapters.push(newChapter);
   } else {

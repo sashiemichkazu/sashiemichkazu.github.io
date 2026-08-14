@@ -42,6 +42,8 @@ h1.pagetitle{font-family:'Cinzel',serif;font-weight:700;font-size:clamp(26px,5vw
 .toc-return{display:inline-block;margin-top:2rem;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--text-dim);text-decoration:none;}
 .toc-return:hover{color:var(--acc);}
 #view-chapter{display:none;}
+.chapter-cover{width:100%;border-radius:10px;margin-bottom:2rem;display:block;}
+.chapter-body img{max-width:100%;border-radius:10px;margin:1.6em 0;display:block;}
 </style>
 </head>
 <body>
@@ -81,7 +83,12 @@ function esc(s){
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 function renderBody(text){
-  return String(text).split(/\n\s*\n/).map(p => '<p>' + esc(p.trim()).replace(/\n/g,'<br>') + '</p>').join('');
+  return String(text).split(/\n\s*\n/).map(p => {
+    const t = p.trim();
+    const m = t.match(/^!\[([^\]]*)\]\(([^)]+)\)$/);
+    if(m){ return '<img src="' + esc(m[2]) + '" alt="' + esc(m[1]) + '">'; }
+    return '<p>' + esc(t).replace(/\n/g,'<br>') + '</p>';
+  }).join('');
 }
 function renderToc(){
   const list = document.getElementById('tocList');
@@ -111,7 +118,8 @@ function showChapter(id){
   document.getElementById('chNum').textContent = '第' + c.id + '話';
   document.getElementById('chTitle').textContent = c.title;
   document.getElementById('chDate').textContent = c.date || '';
-  document.getElementById('chBody').innerHTML = renderBody(c.body || '');
+  const coverHtml = c.coverImage ? '<img class="chapter-cover" src="' + esc(c.coverImage) + '" alt="">' : '';
+  document.getElementById('chBody').innerHTML = coverHtml + renderBody(c.body || '');
   const prev = pub[idx-1], next = pub[idx+1];
   const prevBtn = document.getElementById('prevBtn');
   const nextBtn = document.getElementById('nextBtn');
