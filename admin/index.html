@@ -124,6 +124,31 @@ th{color:var(--text-dim);font-weight:600;font-size:12px;letter-spacing:.05em;tex
     </table>
   </div>
 
+  <!-- 一括登録 -->
+  <div class="panel" id="bulkPanel" style="display:none;">
+    <h2>④ 一括登録（複数ファイルをまとめて追加）</h2>
+    <div class="field">
+      <label>Word（.docx）または PDFファイルを複数選択</label>
+      <input type="file" id="bulkUpload" accept=".docx,.pdf" multiple>
+      <span class="status idle" id="bulkUploadStatus" style="margin-top:.5rem;display:inline-block;"></span>
+      <div class="help" style="margin-top:.6rem;">
+        ファイル名や本文冒頭の「第◯話」といった表記から話数を自動で判定します（AIが文脈を判断しているわけではなく、単純なパターン一致です）。判定できなかった場合は既存の最大話数の続きから連番になります。<br>
+        登録前に下の一覧で話数・公開状態を確認・修正でき、行ごとに除外することもできます。「この内容で一括登録」を押した直後、保存前に現在のデータのバックアップを自動作成するので、万一おかしくなっても戻せます。
+      </div>
+    </div>
+    <div id="bulkPreviewWrap" style="display:none;">
+      <table>
+        <thead><tr><th>話数</th><th>タイトル（ファイル名）</th><th>公開</th><th></th></tr></thead>
+        <tbody id="bulkRows"></tbody>
+      </table>
+      <div class="row" style="margin-top:1rem;">
+        <button onclick="confirmBulkImport()">この内容で一括登録</button>
+        <button class="secondary" onclick="cancelBulkImport()">キャンセル</button>
+        <span class="status idle" id="bulkSaveStatus"></span>
+      </div>
+    </div>
+  </div>
+
   <!-- 編集フォーム -->
   <div class="panel" id="editPanel">
     <h2 id="editTitle">章を編集</h2>
@@ -201,47 +226,48 @@ if(window.pdfjsLib){
   pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 }
 
+async function extractTextFromFile(file){
+  const ext = file.name.split('.').pop().toLowerCase();
+  if(ext === 'docx'){
+    const arrayBuffer = await file.arrayBuffer();
+    const result = await mammoth.extractRawText({ arrayBuffer });
+    return result.value
+      .split(/\n+/)
+      .map(s => s.trim())
+      .filter(s => s.length > 0)
+      .join('\n\n');
+  } else if(ext === 'pdf'){
+    const arrayBuffer = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    const lines = [];
+    for(let p = 1; p <= pdf.numPages; p++){
+      const page = await pdf.getPage(p);
+      const content = await page.getTextContent();
+      let line = '';
+      content.items.forEach(item => {
+        line += item.str;
+        if(item.hasEOL){
+          lines.push(line);
+          line = '';
+        }
+      });
+      if(line) lines.push(line);
+    }
+    return lines.map(s => s.trim()).filter(s => s.length > 0).join('\n');
+  } else {
+    throw new Error('対応していないファイル形式です（.docx / .pdfのみ）：' + file.name);
+  }
+}
+
 async function handleFileUpload(e){
   const file = e.target.files[0];
   if(!file) return;
   const statusEl = document.getElementById('uploadStatus');
   const nameNoExt = file.name.replace(/\.[^/.]+$/, '');
   document.getElementById('fTitle').value = nameNoExt;
-  const ext = file.name.split('.').pop().toLowerCase();
   setStatus(statusEl, '読み込み中…', 'idle');
   try{
-    let text = '';
-    if(ext === 'docx'){
-      const arrayBuffer = await file.arrayBuffer();
-      const result = await mammoth.extractRawText({ arrayBuffer });
-      text = result.value
-        .split(/\n+/)
-        .map(s => s.trim())
-        .filter(s => s.length > 0)
-        .join('\n\n');
-    } else if(ext === 'pdf'){
-      const arrayBuffer = await file.arrayBuffer();
-      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-      const lines = [];
-      for(let p = 1; p <= pdf.numPages; p++){
-        const page = await pdf.getPage(p);
-        const content = await page.getTextContent();
-        let line = '';
-        content.items.forEach(item => {
-          line += item.str;
-          if(item.hasEOL){
-            lines.push(line);
-            line = '';
-          }
-        });
-        if(line) lines.push(line);
-      }
-      text = lines.map(s => s.trim()).filter(s => s.length > 0).join('\n');
-    } else {
-      setStatus(statusEl, '対応していないファイル形式です（.docx / .pdfのみ）', 'bad');
-      e.target.value = '';
-      return;
-    }
+    const text = await extractTextFromFile(file);
     document.getElementById('fBody').value = text;
     setStatus(statusEl, '読み込み完了：' + file.name, 'ok');
   } catch(err){
@@ -249,6 +275,23 @@ async function handleFileUpload(e){
   } finally {
     e.target.value = '';
   }
+}
+
+// ファイル名・本文冒頭から「第◯話」のような話数を推測する（パターン一致。AIによる判定ではない）
+function detectChapterNumber(filename, text){
+  const patterns = [
+    /第\s*(\d+)\s*話/,
+    /^0*(\d+)[_\-\s.]/,
+    /(?:ep|episode|chapter|ch)[\s_\-]*0*(\d+)/i
+  ];
+  for(const p of patterns){
+    const m = filename.match(p);
+    if(m) return parseInt(m[1], 10);
+  }
+  const head = (text || '').slice(0, 300);
+  const m = head.match(/第\s*(\d+)\s*話/);
+  if(m) return parseInt(m[1], 10);
+  return null;
 }
 function fileToBase64(file){
   return new Promise((resolve, reject) => {
@@ -336,7 +379,123 @@ document.addEventListener('DOMContentLoaded', () => {
   if(cu) cu.addEventListener('change', handleCoverUpload);
   const iu = document.getElementById('fInlineImageUpload');
   if(iu) iu.addEventListener('change', handleInlineImageUpload);
+  const bu = document.getElementById('bulkUpload');
+  if(bu) bu.addEventListener('change', handleBulkFiles);
 });
+
+// ---- 一括登録 ----
+let bulkQueue = []; // [{id, title, body, filename, published, error}]
+
+async function handleBulkFiles(e){
+  const files = Array.from(e.target.files);
+  if(files.length === 0) return;
+  const statusEl = document.getElementById('bulkUploadStatus');
+  const usedIds = currentData.chapters.map(c => c.id);
+  let autoNext = usedIds.length ? Math.max(...usedIds) + 1 : 1;
+  let i = 0;
+  for(const file of files){
+    i++;
+    setStatus(statusEl, '読み込み中…（' + i + '/' + files.length + '）', 'idle');
+    const nameNoExt = file.name.replace(/\.[^/.]+$/, '');
+    try{
+      const text = await extractTextFromFile(file);
+      let id = detectChapterNumber(file.name, text);
+      // 今回のバッチ内で話数が重複した場合のみ自動連番に振り直す
+      // （既存章との重複は保存確認時に上書き確認する）
+      if(id === null || bulkQueue.some(b => b.id === id)){
+        while(usedIds.includes(autoNext) || bulkQueue.some(b => b.id === autoNext)) autoNext++;
+        id = autoNext;
+      }
+      bulkQueue.push({ id, title: nameNoExt, body: text, filename: file.name, published: true, error: null });
+    } catch(err){
+      bulkQueue.push({ id: null, title: nameNoExt, body: '', filename: file.name, published: false, error: err.message });
+    }
+  }
+  bulkQueue.sort((a, b) => (a.id || 0) - (b.id || 0));
+  renderBulkPreview();
+  setStatus(statusEl, '読み込み完了：' + files.length + '件', 'ok');
+  e.target.value = '';
+}
+
+function renderBulkPreview(){
+  const wrap = document.getElementById('bulkPreviewWrap');
+  const tbody = document.getElementById('bulkRows');
+  if(bulkQueue.length === 0){ wrap.style.display = 'none'; return; }
+  wrap.style.display = 'block';
+  tbody.innerHTML = bulkQueue.map((b, idx) => `
+    <tr>
+      <td><input type="number" min="1" step="1" value="${b.id === null ? '' : b.id}" style="width:5.5em;" onchange="updateBulkId(${idx}, this.value)"></td>
+      <td>${escapeHtml(b.title)}${b.error ? '<br><span class="status bad" style="margin-top:.3rem;display:inline-block;">' + escapeHtml(b.error) + '</span>' : ''}</td>
+      <td><input type="checkbox" style="width:auto;" ${b.published ? 'checked' : ''} onchange="updateBulkPublished(${idx}, this.checked)"></td>
+      <td><button class="secondary" onclick="removeBulkItem(${idx})">除外</button></td>
+    </tr>
+  `).join('');
+}
+function updateBulkId(idx, val){ bulkQueue[idx].id = parseInt(val, 10) || null; }
+function updateBulkPublished(idx, val){ bulkQueue[idx].published = val; }
+function removeBulkItem(idx){ bulkQueue.splice(idx, 1); renderBulkPreview(); }
+
+function cancelBulkImport(){
+  bulkQueue = [];
+  renderBulkPreview();
+  const statusEl = document.getElementById('bulkUploadStatus');
+  setStatus(statusEl, '', 'idle');
+  const saveEl = document.getElementById('bulkSaveStatus');
+  setStatus(saveEl, '', 'idle');
+}
+
+function backupTimestamp(){
+  const d = new Date();
+  const p = n => String(n).padStart(2, '0');
+  return d.getFullYear() + p(d.getMonth() + 1) + p(d.getDate()) + '-' + p(d.getHours()) + p(d.getMinutes()) + p(d.getSeconds());
+}
+
+async function confirmBulkImport(){
+  const statusEl = document.getElementById('bulkSaveStatus');
+  if(bulkQueue.length === 0) return;
+
+  const invalid = bulkQueue.filter(b => !b.id || !b.title || b.error);
+  if(invalid.length){ alert('話数が未設定、またはエラーのある項目があります。一覧を確認するか「除外」してください。'); return; }
+
+  const ids = bulkQueue.map(b => b.id);
+  const dupInBatch = [...new Set(ids.filter((v, i) => ids.indexOf(v) !== i))];
+  if(dupInBatch.length){ alert('一括登録の中で話数が重複しています：第' + dupInBatch.join('話、第') + '話'); return; }
+
+  const conflicts = bulkQueue.filter(b => currentData.chapters.some(c => c.id === b.id));
+  if(conflicts.length){
+    const ok = confirm('既存の第' + conflicts.map(c => c.id).join('話、第') + '話と話数が重複しています。上書きしてよろしいですか？');
+    if(!ok) return;
+  }
+
+  const work = document.getElementById('workSelect').value;
+  const cfg = WORKS[work];
+  try{
+    setStatus(statusEl, 'バックアップを作成中…', 'idle');
+    const backupPath = cfg.path.replace(/chapters\.json$/, 'chapters.backup-' + backupTimestamp() + '.json');
+    await apiPut(backupPath, JSON.stringify(currentData, null, 2), null, 'バックアップ: 一括登録前の状態を保存');
+
+    setStatus(statusEl, '保存中…（' + bulkQueue.length + '件）', 'idle');
+    bulkQueue.forEach(b => {
+      currentData.chapters = currentData.chapters.filter(c => c.id !== b.id);
+      currentData.chapters.push({
+        id: b.id, title: b.title, date: new Date().toISOString().slice(0, 10),
+        published: b.published, body: b.body, coverImage: null
+      });
+    });
+    const count = bulkQueue.length;
+    const first = Math.min(...bulkQueue.map(b => b.id));
+    const last = Math.max(...bulkQueue.map(b => b.id));
+    const result = await apiPut(cfg.path, JSON.stringify(currentData, null, 2), currentSha,
+      '小説一括登録: 第' + first + '話〜第' + last + '話（' + count + '件）を追加');
+    currentSha = result.content.sha;
+    renderList();
+    bulkQueue = [];
+    renderBulkPreview();
+    setStatus(statusEl, count + '件を保存しました（バックアップ作成済み）。数十秒後にサイトに反映されます。', 'ok');
+  } catch(e){
+    setStatus(statusEl, '保存に失敗しました：' + e.message + '（GitHubには反映されていません）', 'bad');
+  }
+}
 
 function b64EncodeUtf8(str){
   const bytes = new TextEncoder().encode(str);
@@ -421,6 +580,9 @@ async function loadChapters(){
     if(!currentData.chapters) currentData.chapters = [];
     renderList();
     document.getElementById('listPanel').style.display = '';
+    document.getElementById('bulkPanel').style.display = '';
+    bulkQueue = [];
+    renderBulkPreview();
     setStatus(el, '読み込み完了（' + currentData.chapters.length + '話）', 'ok');
   } catch(e){
     setStatus(el, '読み込みに失敗しました：' + e.message, 'bad');
