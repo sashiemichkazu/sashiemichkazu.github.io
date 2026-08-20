@@ -532,9 +532,10 @@ async function persist(statusEl, message){
   const cfg = WORKS[work];
   setStatus(statusEl, '保存中…', 'idle');
   try{
-    // 直前の最新shaを取り直して競合を防ぐ
-    const latest = await apiGet(cfg.path);
-    const result = await apiPut(cfg.path, JSON.stringify(currentData, null, 2), latest.sha, message);
+    // GitHub側を都度読み直すと、直後は反映が遅れて古いshaが返り
+    // 「競合エラー」で失敗することがあるため、自分が最後に書き込んだ
+    // shaをそのまま使う（読み直さない）。
+    const result = await apiPut(cfg.path, JSON.stringify(currentData, null, 2), currentSha, message);
     currentSha = result.content.sha;
     renderList();
     closeEditor();
