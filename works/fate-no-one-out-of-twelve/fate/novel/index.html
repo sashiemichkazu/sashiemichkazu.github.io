@@ -44,11 +44,16 @@ h1.pagetitle{font-family:'Cinzel',serif;font-weight:700;font-size:clamp(26px,5vw
 #view-chapter{display:none;}
 .chapter-cover{width:100%;border-radius:10px;margin-bottom:2rem;display:block;}
 .chapter-body img{max-width:100%;border-radius:10px;margin:1.6em 0;display:block;}
+.back-group{display:flex;gap:1.3rem;align-items:center;}
+#tocLink{display:none;cursor:pointer;}
 </style>
 </head>
 <body>
 <header class="top">
-  <a class="back" href="../index.html">← 作品ページへ戻る</a>
+  <div class="back-group">
+    <a class="back" href="../index.html">← 作品ページへ戻る</a>
+    <a class="back" href="#toc" id="tocLink" onclick="showToc();return false;">小説目次へ戻る</a>
+  </div>
   <span class="worklabel">Fate／Last One Standing</span>
 </header>
 <div class="wrap">
@@ -108,6 +113,7 @@ function renderToc(){
 function showToc(){
   document.getElementById('view-toc').style.display = '';
   document.getElementById('view-chapter').style.display = 'none';
+  document.getElementById('tocLink').style.display = 'none';
   document.title = '小説を読む — ' + WORK_TITLE;
 }
 function showChapter(id){
@@ -129,6 +135,7 @@ function showChapter(id){
   else { nextBtn.classList.add('disabled'); nextBtn.textContent = ''; }
   document.getElementById('view-toc').style.display = 'none';
   document.getElementById('view-chapter').style.display = 'block';
+  document.getElementById('tocLink').style.display = 'inline';
   document.title = c.title + ' — ' + WORK_TITLE;
   window.scrollTo(0,0);
 }
