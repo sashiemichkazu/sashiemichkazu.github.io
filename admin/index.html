@@ -221,6 +221,7 @@ let currentData = null;   // { chapters: [...] }
 let currentSha = null;
 let editingId = null;     // null = new
 let currentCoverPath = null; // 編集中の章のトップ画像パス（相対）
+let imageUploadInFlight = 0; // トップ/本文画像のアップロードが進行中の数（0なら保存可）
 
 if(window.pdfjsLib){
   pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
@@ -327,7 +328,8 @@ async function handleCoverUpload(e){
   const file = e.target.files[0];
   if(!file) return;
   const statusEl = document.getElementById('coverStatus');
-  setStatus(statusEl, 'アップロード中…', 'idle');
+  setStatus(statusEl, 'アップロード中…（完了するまで保存しないでください）', 'idle');
+  imageUploadInFlight++;
   try{
     const relPath = await uploadImageFile(file, 'トップ画像をアップロード');
     currentCoverPath = relPath;
@@ -336,11 +338,12 @@ async function handleCoverUpload(e){
     const fullPath = cfg.imagesDir + '/' + relPath.slice('images/'.length);
     document.getElementById('coverPreview').src = `https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/${fullPath}`;
     document.getElementById('coverPreviewWrap').style.display = '';
-    setStatus(statusEl, 'アップロード完了', 'ok');
+    setStatus(statusEl, 'アップロード完了。この状態で保存してください', 'ok');
   } catch(err){
     setStatus(statusEl, err.message, 'bad');
   } finally {
     e.target.value = '';
+    imageUploadInFlight--;
   }
 }
 function removeCoverImage(){
@@ -353,7 +356,8 @@ async function handleInlineImageUpload(e){
   const file = e.target.files[0];
   if(!file) return;
   const statusEl = document.getElementById('inlineImageStatus');
-  setStatus(statusEl, 'アップロード中…', 'idle');
+  setStatus(statusEl, 'アップロード中…（完了するまで保存しないでください）', 'idle');
+  imageUploadInFlight++;
   try{
     const relPath = await uploadImageFile(file, '本文用画像をアップロード');
     const snippet = '\n\n![](' + relPath + ')\n\n';
@@ -369,6 +373,7 @@ async function handleInlineImageUpload(e){
     setStatus(statusEl, err.message, 'bad');
   } finally {
     e.target.value = '';
+    imageUploadInFlight--;
   }
 }
 
@@ -664,6 +669,7 @@ async function saveChapter(){
   const body = document.getElementById('fBody').value;
   const published = document.getElementById('fPublished').checked;
   if(!id || !title){ alert('話数とタイトルは必須です'); return; }
+  if(imageUploadInFlight > 0){ alert('画像のアップロードが完了してから保存してください（アップロード中に保存すると画像が反映されません）'); return; }
 
   const dup = currentData.chapters.find(c => c.id === id && c.id !== editingId);
   if(dup){
