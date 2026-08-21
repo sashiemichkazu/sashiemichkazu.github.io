@@ -49,12 +49,12 @@ summary{cursor:pointer;font-size:13px;color:var(--text-dim);}
 .help ol{padding-left:1.2rem;}
 .help code{background:rgba(255,255,255,.08);padding:.1rem .4rem;border-radius:4px;font-size:12px;}
 table{width:100%;border-collapse:collapse;margin-top:.5rem;}
-th,td{text-align:left;padding:.6rem .5rem;border-bottom:1px solid var(--border);font-size:14px;}
+th,td{text-align:left;padding:.6rem .5rem;border-bottom:1px solid var(--border);font-size:14px;vertical-align:middle;}
 th{color:var(--text-dim);font-weight:600;font-size:12px;letter-spacing:.05em;text-transform:uppercase;}
 .badge{font-size:11px;padding:.2rem .55rem;border-radius:20px;letter-spacing:.03em;}
 .badge.pub{background:rgba(127,232,168,.15);color:var(--ok);}
 .badge.draft{background:rgba(255,255,255,.08);color:var(--text-dim);}
-.rowbtns{display:flex;gap:.4rem;}
+.rowbtns{display:flex;gap:.4rem;align-items:center;}
 .rowbtns button{padding:.4rem .8rem;font-size:12.5px;}
 .empty-row{color:var(--text-dim);text-align:center;padding:2rem 0;}
 .field{margin-bottom:1rem;}
@@ -604,7 +604,7 @@ function renderList(){
   const work = document.getElementById('workSelect').value;
   const cfg = WORKS[work];
   tbody.innerHTML = chapters.map(c => {
-    let thumbHtml = '<span class="status idle" style="font-size:11px;">なし</span>';
+    let thumbHtml = '<span class="status idle" style="font-size:11px;width:48px;height:48px;display:flex;align-items:center;justify-content:center;text-align:center;box-sizing:border-box;">なし</span>';
     if(c.coverImage && cfg){
       const fullPath = cfg.imagesDir + '/' + c.coverImage.slice('images/'.length);
       const url = `https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/${fullPath}`;
