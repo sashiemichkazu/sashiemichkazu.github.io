@@ -119,7 +119,7 @@ th{color:var(--text-dim);font-weight:600;font-size:12px;letter-spacing:.05em;tex
     <h2>③ 章一覧</h2>
     <button onclick="openEditor(null)">＋ 新しい章を追加</button>
     <table>
-      <thead><tr><th>話数</th><th>タイトル</th><th>日付</th><th>状態</th><th></th></tr></thead>
+      <thead><tr><th>画像</th><th>話数</th><th>タイトル</th><th>日付</th><th>状態</th><th></th></tr></thead>
       <tbody id="chapterRows"></tbody>
     </table>
   </div>
@@ -598,11 +598,21 @@ function renderList(){
   const tbody = document.getElementById('chapterRows');
   const chapters = currentData.chapters.slice().sort((a,b)=>a.id-b.id);
   if(chapters.length === 0){
-    tbody.innerHTML = '<tr><td colspan="5" class="empty-row">まだ章がありません。「＋ 新しい章を追加」から作成してください。</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6" class="empty-row">まだ章がありません。「＋ 新しい章を追加」から作成してください。</td></tr>';
     return;
   }
-  tbody.innerHTML = chapters.map(c => `
+  const work = document.getElementById('workSelect').value;
+  const cfg = WORKS[work];
+  tbody.innerHTML = chapters.map(c => {
+    let thumbHtml = '<span class="status idle" style="font-size:11px;">なし</span>';
+    if(c.coverImage && cfg){
+      const fullPath = cfg.imagesDir + '/' + c.coverImage.slice('images/'.length);
+      const url = `https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/${fullPath}`;
+      thumbHtml = `<img src="${url}" alt="" style="width:48px;height:48px;object-fit:cover;border-radius:6px;display:block;">`;
+    }
+    return `
     <tr>
+      <td>${thumbHtml}</td>
       <td>第${c.id}話</td>
       <td>${escapeHtml(c.title)}</td>
       <td>${escapeHtml(c.date||'')}</td>
@@ -611,7 +621,8 @@ function renderList(){
         <button class="secondary" onclick="openEditor(${c.id})">編集</button>
       </td>
     </tr>
-  `).join('');
+  `;
+  }).join('');
 }
 function escapeHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
