@@ -617,9 +617,9 @@ function renderList(){
       <td>${escapeHtml(c.title)}</td>
       <td>${escapeHtml(c.date||'')}</td>
       <td><span class="badge ${c.published?'pub':'draft'}">${c.published?'公開中':'下書き'}</span></td>
-      <td class="rowbtns">
+      <td><div class="rowbtns">
         <button class="secondary" onclick="openEditor(${c.id})">編集</button>
-      </td>
+      </div></td>
     </tr>
   `;
   }).join('');
