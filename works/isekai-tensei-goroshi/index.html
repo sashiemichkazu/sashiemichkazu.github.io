@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>異世界転生殺し — Original Novel Project</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&family=Rajdhani:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --acc:#e25a4a;--acc-dim:#8f342a;--acc2:#8fe6a8;
+  --text:#f0e4de;--text-dim:#b39d94;
+  --surface:#0c0706;--surface2:#130b0a;--surface3:#1c1210;
+  --border:rgba(226,90,74,0.22);
+}
+html{scroll-behavior:smooth}
+body{background:#050302;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:16px;line-height:1.7;overflow-x:hidden;}
+
+/* ─ GLITCH RAIN (ambient) ─ */
+.glitchrain{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;overflow:hidden;background:#050302;}
+.glyph{position:absolute;top:-6%;font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:600;letter-spacing:.05em;opacity:0;animation:fall linear infinite;}
+@keyframes fall{0%{transform:translateY(0);opacity:0;}8%{opacity:var(--op);}90%{opacity:var(--op);}100%{transform:translateY(115vh);opacity:0;}}
+
+/* ─ NAV ─ */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(180deg,rgba(5,3,2,.95),transparent);transition:background .3s;}
+nav.scrolled{background:rgba(5,3,2,.98);border-bottom:1px solid var(--border);}
+.nav-logo{font-family:'Cinzel',serif;font-size:13px;font-weight:700;color:var(--acc);letter-spacing:.25em;text-decoration:none;}
+.nav-links{display:flex;gap:2rem;list-style:none;}
+.nav-links a{font-family:'Rajdhani',sans-serif;font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:var(--text-dim);text-decoration:none;transition:color .2s;}
+.nav-links a:hover{color:var(--acc);}
+.nav-toggle{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px;}
+.nav-toggle span{width:22px;height:1px;background:var(--text-dim);display:block;}
+@media(max-width:640px){
+  .nav-links{display:none;position:absolute;top:100%;left:0;right:0;background:rgba(5,3,2,.98);flex-direction:column;padding:1rem 2rem;gap:1rem;border-bottom:1px solid var(--border);}
+  .nav-links.open{display:flex;}
+  .nav-toggle{display:flex;}
+}
+
+/* ─ HERO ─ */
+#hero{position:relative;width:100%;min-height:100vh;overflow:hidden;z-index:1;display:flex;flex-direction:column;background:#050302;}
+.hero-bg{position:absolute;inset:0;z-index:0;
+  background:
+    repeating-linear-gradient(0deg,rgba(226,90,74,.05) 0px,rgba(226,90,74,.05) 1px,transparent 1px,transparent 46px),
+    repeating-linear-gradient(90deg,rgba(226,90,74,.05) 0px,rgba(226,90,74,.05) 1px,transparent 1px,transparent 46px),
+    linear-gradient(160deg,#050302,#170805 55%,#050302);}
+.hero-vignette{position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:radial-gradient(ellipse 85% 65% at 28% 42%,transparent 25%,rgba(5,3,2,.9) 100%);}
+.scan-sweep{position:absolute;left:0;right:0;top:-140px;height:140px;z-index:1;pointer-events:none;
+  background:linear-gradient(to bottom,transparent,rgba(143,230,168,.07),transparent);
+  animation:sweep 7s linear infinite;}
+@keyframes sweep{0%{top:-140px;}100%{top:100%;}}
+.hero-overlay{position:absolute;inset:0;z-index:2;pointer-events:none;
+  background:linear-gradient(to bottom,rgba(5,3,2,.35) 0%,rgba(5,3,2,.05) 30%,rgba(5,3,2,.08) 60%,rgba(5,3,2,.92) 100%);}
+.hero-content{position:relative;z-index:3;flex:1;display:flex;align-items:center;padding:2rem;padding-top:13vh;}
+.hero-grid2{display:grid;grid-template-columns:1.15fr .85fr;gap:3.5rem;align-items:center;max-width:1180px;margin:0 auto;width:100%;}
+.hero-text{text-align:left;}
+.case-tag{position:relative;display:inline-block;font-family:'Rajdhani',sans-serif;letter-spacing:.32em;font-size:clamp(10px,1.3vw,12px);color:var(--acc);text-transform:uppercase;padding:.55rem 1.5rem;margin-bottom:1.7rem;background:rgba(5,3,2,.4);backdrop-filter:blur(2px);}
+.case-tag .cm{position:absolute;width:8px;height:8px;border-color:var(--acc2);}
+.case-tag .cm.tl{top:-1px;left:-1px;border-top:1px solid;border-left:1px solid;}
+.case-tag .cm.tr{top:-1px;right:-1px;border-top:1px solid;border-right:1px solid;}
+.case-tag .cm.bl{bottom:-1px;left:-1px;border-bottom:1px solid;border-left:1px solid;}
+.case-tag .cm.br{bottom:-1px;right:-1px;border-bottom:1px solid;border-right:1px solid;}
+.hero-jp{font-family:'Cinzel',serif;font-size:clamp(14px,2vw,18px);font-weight:600;letter-spacing:.3em;color:var(--acc-dim);margin-bottom:.6rem;}
+.hero-main{font-family:'Cinzel',serif;font-size:clamp(42px,8.5vw,96px);font-weight:900;line-height:1;background:linear-gradient(100deg,#fff 0%,var(--acc) 50%,var(--acc2) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:.04em;margin-bottom:1.1rem;filter:drop-shadow(0 4px 24px rgba(0,0,0,.9));}
+.target-line{width:140px;height:2px;margin:0 0 1.8rem;background:linear-gradient(90deg,var(--acc),var(--acc2),transparent);}
+.hero-tagline{font-family:'Crimson Pro',serif;font-size:clamp(15px,2vw,20px);font-style:italic;color:rgba(240,228,222,.85);margin-bottom:2.6rem;letter-spacing:.03em;}
+.cursor-blink{display:inline-block;color:var(--acc2);animation:blink 1s step-end infinite;}
+@keyframes blink{0%,49%{opacity:1;}50%,100%{opacity:0;}}
+.hero-cta{display:flex;gap:1rem;flex-wrap:wrap;}
+.btn-gold{font-family:'Rajdhani',sans-serif;font-weight:600;letter-spacing:.2em;text-transform:uppercase;font-size:13px;padding:.9rem 2.5rem;border:1px solid var(--acc);background:rgba(226,90,74,.15);color:var(--acc);text-decoration:none;cursor:pointer;transition:all .3s;display:inline-block;backdrop-filter:blur(4px);}
+.btn-gold:hover{background:rgba(226,90,74,.28);box-shadow:0 0 20px rgba(226,90,74,.25);}
+.btn-ghost{font-family:'Rajdhani',sans-serif;font-weight:600;letter-spacing:.2em;text-transform:uppercase;font-size:13px;padding:.9rem 2.5rem;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.05);color:var(--text-dim);text-decoration:none;cursor:pointer;transition:all .3s;display:inline-block;backdrop-filter:blur(4px);}
+.btn-ghost:hover{border-color:rgba(255,255,255,.5);color:var(--text);}
+.scroll-hint{position:relative;z-index:3;text-align:center;padding-bottom:2rem;font-size:10px;color:rgba(179,157,148,.4);letter-spacing:.3em;text-transform:uppercase;animation:bob 2s ease-in-out infinite;}
+@keyframes bob{0%,100%{opacity:.3;transform:translateY(0)}50%{opacity:.7;transform:translateY(-5px)}}
+
+/* HUD panel */
+.hud-panel{position:relative;border:1px solid var(--border);background:rgba(12,7,6,.55);backdrop-filter:blur(3px);padding:1.8rem;aspect-ratio:1/1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.3rem;}
+.hud-corner{position:absolute;width:18px;height:18px;border-color:var(--acc);pointer-events:none;}
+.hud-corner.tl{top:-1px;left:-1px;border-top:2px solid;border-left:2px solid;}
+.hud-corner.tr{top:-1px;right:-1px;border-top:2px solid;border-right:2px solid;}
+.hud-corner.bl{bottom:-1px;left:-1px;border-bottom:2px solid;border-left:2px solid;}
+.hud-corner.br{bottom:-1px;right:-1px;border-bottom:2px solid;border-right:2px solid;}
+.hud-ring{position:relative;width:62%;aspect-ratio:1/1;}
+.hud-ring svg{width:100%;height:100%;animation:pulse-ring 3s ease-in-out infinite;}
+@keyframes pulse-ring{0%,100%{opacity:.7;transform:scale(1);}50%{opacity:1;transform:scale(1.05);}}
+.hud-readout{width:100%;font-family:'Rajdhani',sans-serif;font-size:12px;letter-spacing:.1em;color:var(--text-dim);display:flex;flex-direction:column;gap:.55rem;border-top:1px solid var(--border);padding-top:1rem;}
+.hud-readout p{display:flex;justify-content:space-between;gap:.5rem;margin:0;}
+.hud-readout b{color:var(--acc2);font-weight:600;}
+.hud-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--acc2);margin-right:.4rem;box-shadow:0 0 6px var(--acc2);animation:blink 1.6s ease-in-out infinite;}
+@media(max-width:860px){
+  .hero-grid2{grid-template-columns:1fr;}
+  .hud-panel{max-width:260px;margin:2rem auto 0;order:2;}
+  .hero-text{order:1;text-align:center;}
+  .case-tag,.target-line{margin-left:auto;margin-right:auto;}
+  .hero-cta{justify-content:center;}
+}
+
+/* ─ COMMON SECTION ─ */
+section{position:relative;z-index:1;padding:6rem 2rem;}
+.sec-inner{max-width:1100px;margin:0 auto;}
+.sec-label{font-family:'Rajdhani',sans-serif;letter-spacing:.5em;font-size:11px;color:var(--acc);text-transform:uppercase;margin-bottom:.5rem;display:block;}
+.sec-title{font-family:'Cinzel',serif;font-size:clamp(24px,4vw,42px);font-weight:700;color:#fff;margin-bottom:.5rem;line-height:1.2;}
+.sec-divider{width:80px;height:1px;margin:1.5rem 0 3rem;background:linear-gradient(90deg,var(--acc),transparent);}
+
+/* ─ STORY ─ */
+#story{background:var(--surface2);}
+.story-text p{color:var(--text-dim);margin-bottom:1.2rem;font-size:17px;line-height:1.8;}
+
+/* ─ SHARED SLIDER ─ */
+.slider-outer{position:relative;}
+.s-clip{overflow:hidden;}
+.s-track{display:flex;transition:transform .5s cubic-bezier(.25,.46,.45,.94);}
+.s-btn{position:absolute;top:50%;transform:translateY(-50%);width:44px;height:44px;border:1px solid var(--border);background:rgba(5,3,2,.85);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:10;transition:all .2s;font-size:24px;color:var(--acc);user-select:none;line-height:1;}
+.s-btn:hover{background:rgba(226,90,74,.14);border-color:var(--acc);}
+.s-btn.prev{left:-22px;}.s-btn.next{right:-22px;}
+.s-dots{display:flex;gap:8px;justify-content:center;margin-top:2rem;}
+.s-dot{width:8px;height:8px;border-radius:50%;background:rgba(226,90,74,.3);border:none;cursor:pointer;transition:all .2s;padding:0;}
+.s-dot.on{background:var(--acc);box-shadow:0 0 8px rgba(226,90,74,.5);}
+@media(max-width:640px){
+  .s-btn{top:auto;transform:none;bottom:-56px;width:40px;height:40px;}
+  .s-btn.prev{left:calc(50% - 50px);}
+  .s-btn.next{right:auto;left:calc(50% + 10px);}
+  .s-dots{margin-top:4.5rem;}
+}
+
+/* ─ CHARACTER SLIDER ─ */
+#characters{background:var(--surface);}
+.char-slide{min-width:100%;display:grid;grid-template-columns:300px 1fr;gap:3rem;align-items:start;}
+.char-img{
+  border:1px solid var(--border);aspect-ratio:5/8;
+  position:relative;overflow:hidden;background:#fff;
+}
+.char-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:50% 50%;}
+.char-img.is-cover img{object-fit:cover;}
+.char-img.is-void{background:linear-gradient(165deg,#0e0706,#1c0d0a 55%,#0a0504);display:flex;align-items:center;justify-content:center;}
+.char-img.is-void .void-mark{font-family:'Cinzel',serif;font-size:15px;letter-spacing:.35em;color:rgba(226,90,74,.5);text-align:center;padding:0 1.5rem;}
+.char-img.is-void .void-glyph{position:absolute;inset:0;opacity:.5;}
+.char-info{padding-top:.5rem;}
+.char-name{font-family:'Cinzel',serif;font-size:clamp(20px,3vw,32px);font-weight:700;color:#fff;margin-bottom:.6rem;line-height:1.2;}
+.char-role{font-size:11px;letter-spacing:.3em;text-transform:uppercase;padding:.3rem .9rem;border:1px solid var(--acc2);color:var(--acc2);display:inline-block;margin-bottom:1.2rem;}
+.char-desc{color:var(--text-dim);font-size:16px;line-height:1.85;}
+@media(max-width:760px){
+  .char-slide{grid-template-columns:1fr;}
+  .char-img{aspect-ratio:5/8;max-width:280px;margin:0 auto;}
+}
+
+/* ─ WORLD SLIDER ─ */
+#factions{background:var(--surface2);}
+.fac-slide{min-width:100%;display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:start;}
+.fac-img{
+  border:1px solid var(--border);aspect-ratio:4/3;
+  position:relative;overflow:hidden;
+  background:linear-gradient(135deg,var(--surface3),var(--surface));
+  display:flex;align-items:center;justify-content:center;
+}
+.fac-img-symbol{font-size:100px;opacity:.18;user-select:none;position:relative;z-index:1;}
+.fac-info{padding-top:.5rem;}
+.fac-badge{font-size:11px;letter-spacing:.4em;text-transform:uppercase;padding:.25rem .8rem;border:1px solid;display:inline-block;margin-bottom:1rem;}
+.fac-name{font-family:'Cinzel',serif;font-size:clamp(20px,3vw,32px);font-weight:700;color:#fff;margin-bottom:1.2rem;line-height:1.2;}
+.fac-desc{color:var(--text-dim);font-size:16px;line-height:1.85;margin-bottom:1.5rem;}
+.fac-tags{display:flex;flex-wrap:wrap;gap:.5rem;}
+.tag{font-size:11px;letter-spacing:.2em;text-transform:uppercase;padding:.3rem .8rem;border:1px solid rgba(255,255,255,.15);color:var(--text-dim);}
+@media(max-width:700px){
+  .fac-slide{grid-template-columns:1fr;}
+  .fac-img{aspect-ratio:16/9;}
+  .fac-img-symbol{font-size:60px;}
+}
+
+/* ─ LINKS ─ */
+#links{background:var(--surface);}
+.links-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.5rem;}
+.link-card{padding:2rem;border:1px solid var(--border);background:rgba(20,10,8,.6);text-decoration:none;display:block;transition:all .3s;position:relative;overflow:hidden;}
+.link-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--acc),transparent);transform:scaleX(0);transition:transform .3s;}
+.link-card:not(.is-soon):hover{border-color:rgba(226,90,74,.4);background:rgba(226,90,74,.05);cursor:pointer;}
+.link-card:not(.is-soon):hover::after{transform:scaleX(1);}
+.link-card.is-soon{opacity:.55;}
+.link-label{font-size:11px;letter-spacing:.4em;text-transform:uppercase;color:var(--acc);margin-bottom:.5rem;display:block;}
+.link-title{font-family:'Cinzel',serif;font-size:18px;color:#fff;margin-bottom:.5rem;}
+.link-card p{font-size:13px;color:var(--text-dim);}
+.link-arrow{position:absolute;bottom:1.5rem;right:1.5rem;color:var(--acc);font-size:18px;}
+.links-note{margin-top:1.5rem;font-size:13px;color:var(--text-dim);text-align:center;}
+
+/* ─ DISCLAIMER ─ */
+#disclaimer{background:var(--surface);border-top:1px solid var(--border);padding:4rem 2rem;text-align:center;}
+.disc-icon{font-size:26px;margin-bottom:1rem;opacity:.4;}
+.disc-title{font-family:'Cinzel',serif;font-size:14px;color:var(--acc);letter-spacing:.35em;margin-bottom:1.5rem;}
+.disc-text{max-width:720px;margin:0 auto;font-size:13px;color:var(--text-dim);line-height:2.1;}
+.disc-text strong{color:rgba(240,228,222,.7);}
+.disc-note{max-width:720px;margin:1.5rem auto 0;font-size:12px;color:rgba(179,157,148,.55);line-height:1.9;border-top:1px solid var(--border);padding-top:1.5rem;}
+.disc-sep{width:1px;height:28px;background:var(--border);margin:2rem auto;}
+.disc-support{font-family:'Crimson Pro',serif;font-style:italic;font-size:17px;color:var(--text-dim);max-width:500px;margin:0 auto;}
+.disc-support strong{color:var(--acc);font-style:normal;}
+
+/* ─ FOOTER ─ */
+footer{background:#050302;border-top:1px solid var(--border);padding:2rem;text-align:center;}
+footer p{font-size:12px;color:rgba(179,157,148,.4);letter-spacing:.1em;}
+
+/* ─ REVEAL ─ */
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .7s,transform .7s;}
+.reveal.in{opacity:1;transform:none;}
+</style>
+</head>
+<body>
+<div class="glitchrain" id="ae"></div>
+
+<!-- NAV -->
+<nav id="nav">
+  <a href="#hero" class="nav-logo" onclick="scrollTo({top:0,behavior:'smooth'});return false;">CHEAT KILLER</a>
+  <ul class="nav-links" id="nl">
+    <li><a href="#story" onclick="navTo('story');return false;">ストーリー</a></li>
+    <li><a href="#characters" onclick="navTo('characters');return false;">キャラクター</a></li>
+    <li><a href="#factions" onclick="navTo('factions');return false;">世界観</a></li>
+    <li><a href="#links" onclick="navTo('links');return false;">読む</a></li>
+    <li><a href="../../index.html">ポータルサイトへ</a></li>
+  </ul>
+  <div class="nav-toggle" onclick="toggleNav()"><span></span><span></span><span></span></div>
+</nav>
+
+<!-- ═══ HERO ═══ -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div class="scan-sweep"></div>
+  <div class="hero-vignette"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <div class="hero-grid2">
+      <div class="hero-text">
+        <div class="case-tag"><span class="cm tl"></span><span class="cm tr"></span><span class="cm bl"></span><span class="cm br"></span>SUBJECT FILE — 全48話</div>
+        <p class="hero-jp">異世界転生殺し</p>
+        <h1 class="hero-main">CHEAT<br>KILLER</h1>
+        <div class="target-line"></div>
+        <p class="hero-tagline">その異世界転生者は全ての異世界転生者を殺す。<span class="cursor-blink">_</span></p>
+        <div class="hero-cta">
+          <a href="#story" class="btn-gold" onclick="navTo('story');return false;">ストーリーを見る</a>
+          <a href="#links" class="btn-ghost" onclick="navTo('links');return false;">小説を読む</a>
+        </div>
+      </div>
+      <div class="hud-panel">
+        <div class="hud-corner tl"></div><div class="hud-corner tr"></div><div class="hud-corner bl"></div><div class="hud-corner br"></div>
+        <div class="hud-ring">
+          <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="100" cy="100" r="90" fill="none" stroke="#e25a4a" stroke-width="0.8"/>
+            <circle cx="100" cy="100" r="66" fill="none" stroke="#8fe6a8" stroke-width="0.5" stroke-dasharray="4 6"/>
+            <circle cx="100" cy="100" r="5" fill="#e25a4a"/>
+            <g stroke="#e25a4a" stroke-width="0.6">
+              <line x1="100" y1="2" x2="100" y2="24"/>
+              <line x1="100" y1="176" x2="100" y2="198"/>
+              <line x1="2" y1="100" x2="24" y2="100"/>
+              <line x1="176" y1="100" x2="198" y2="100"/>
+            </g>
+          </svg>
+        </div>
+        <div class="hud-readout">
+          <p><span><span class="hud-dot"></span>STATUS</span><b>ACTIVE</b></p>
+          <p><span>TARGET</span><b>UNKNOWN</b></p>
+          <p><span>THREAT LV</span><b>???</b></p>
+          <p><span>EP. COUNT</span><b>048</b></p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="scroll-hint">↓ scroll</div>
+</section>
+
+<!-- ═══ STORY ═══ -->
+<section id="story" style="position:relative;">
+  <div style="position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 80% 50%,rgba(143,230,168,.05),transparent);"></div>
+  <div class="sec-inner">
+    <span class="sec-label">Synopsis</span>
+    <h2 class="sec-title">あらすじ</h2>
+    <div class="sec-divider"></div>
+    <div class="story-text reveal" style="max-width:740px;">
+      <p>異世界に転生した者は、みな"勇者"に見える。だが、その中には、いずれ道を踏み外す者もいる。</p>
+      <p>黒いスーツを纏った男・デリトは、名も、素性もほとんど語らない。彼の仕事はただひとつ——暴走した"異世界転生者"を狩ることだ。</p>
+      <p>ある魔王城の跡地で、デリトは魔王の娘を名乗る少女・ゾーレと出会う。庇護する義理などないはずなのに、気づけば彼女を連れて、次の異世界へと足を踏み入れていた。</p>
+      <p>案内役のマスコット・ボッチェレヌとともに、デリトたちは異世界から異世界へと渡り歩く。行く先々で出会う"転生者"たちは、誰もが前世に傷を抱えている——それを暴き、撃ち抜くのが、デリトの役目だ。だが旅を重ねるほどに、デリト自身の記憶にも、埋めがたい空白があることに気づき始める。全48話、異世界を渡り歩く"異世界転生者殺し"の物語。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CHARACTERS ═══ -->
+<section id="characters">
+  <div class="sec-inner">
+    <span class="sec-label">Characters</span>
+    <h2 class="sec-title">キャラクター</h2>
+    <div class="sec-divider"></div>
+    <div class="slider-outer" style="padding:0 28px;">
+      <button class="s-btn prev" onclick="slideC(-1)">&#8249;</button>
+      <div class="s-clip">
+      <div class="s-track" id="ct">
+
+        <!-- 1 デリト -->
+        <div class="char-slide">
+          <div class="char-img is-void">
+            <svg class="void-glyph" viewBox="0 0 300 480" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="150" cy="150" r="90" fill="none" stroke="#e25a4a" stroke-width="0.5" opacity="0.5"/>
+              <circle cx="150" cy="150" r="60" fill="none" stroke="#8fe6a8" stroke-width="0.4" opacity="0.4"/>
+              <line x1="150" y1="30" x2="150" y2="270" stroke="#e25a4a" stroke-width="0.3" opacity="0.3"/>
+              <line x1="30" y1="150" x2="270" y2="150" stroke="#e25a4a" stroke-width="0.3" opacity="0.3"/>
+            </svg>
+            <div class="void-mark">NO<br>IMAGE<br>ON<br>FILE</div>
+          </div>
+          <div class="char-info">
+            <h3 class="char-name">デリト＝ヘロ</h3>
+            <div class="char-role">異世界転生殺し（チートキラー）</div>
+            <p class="char-desc">黒スーツを纏う寡黙な男。感情をほとんど見せず、多くを語らない。異世界を渡り歩き、暴走した"転生者"を狩る任務を負っている。銃を武器に、相手の力そのものではなく、前世に負った心の傷を撃ち抜く戦い方をする。その正体は、本人すら知らない。</p>
+          </div>
+        </div>
+
+        <!-- 2 ゾーレ -->
+        <div class="char-slide">
+          <div class="char-img"><img src="zole.png" alt="ゾーレ"></div>
+          <div class="char-info">
+            <h3 class="char-name">ゾーレ＝ペリテット＝マクスガム</h3>
+            <div class="char-role">デリトの相棒</div>
+            <p class="char-desc">魔王マクスガムの娘とされる少女。デリトに救われたことをきっかけに旅を共にするようになった。素直で無邪気な一面を持ち、旅を重ねるごとに感情表現が豊かになっていく。角に刻まれた紋様には、まだ明かされていない秘密が眠っている。</p>
+          </div>
+        </div>
+
+        <!-- 3 ボッチェレヌ -->
+        <div class="char-slide">
+          <div class="char-img"><img src="lucifer.png" alt="ボッチェレヌ"></div>
+          <div class="char-info">
+            <h3 class="char-name">ボッチェレヌ</h3>
+            <div class="char-role">案内役／マスコット</div>
+            <p class="char-desc">綿菓子のような柔らかい見た目でデリトに同行する案内役。飄々としてブラックジョークを挟むムードメーカーだが、背中に隠された鍵穴と、片翼だけの体には、まだ誰も知らない過去が隠されている。</p>
+          </div>
+        </div>
+
+        <!-- 4 ウルレカッスル -->
+        <div class="char-slide">
+          <div class="char-img"><img src="eulrkassel.png" alt="ウルレカッスル"></div>
+          <div class="char-info">
+            <h3 class="char-name">ウルレカッスル</h3>
+            <div class="char-role">転生の女神長「反逆の女神」</div>
+            <p class="char-desc">美しく、どこか摑みどころのない女神。表向きは転生の女神のひとりだが、デリトに"異世界転生殺し"という禁忌の任務を与えた張本人でもある。飄々とした態度の裏で、何を考えているのか誰にも読めない。</p>
+          </div>
+        </div>
+
+        <!-- 5 ユークリート -->
+        <div class="char-slide">
+          <div class="char-img"><img src="eucreat.png" alt="ユークリート"></div>
+          <div class="char-info">
+            <h3 class="char-name">ユークリート</h3>
+            <div class="char-role">O.W.H.L. 統率者</div>
+            <p class="char-desc">異世界転生勇者同盟「O.W.H.L.」を組織し、転生者たちを束ねる女神。威厳ある態度の裏で、時折砕けた素顔をのぞかせる。デリトたちにとって、時に敵、時に奇妙な協力者となる存在。</p>
+          </div>
+        </div>
+
+        <!-- 6 剣持刀子 -->
+        <div class="char-slide">
+          <div class="char-img"><img src="touko.png" alt="剣持刀子"></div>
+          <div class="char-info">
+            <h3 class="char-name">剣持刀子（トウコ）</h3>
+            <div class="char-role">異世界"戦国乱世"の転生者</div>
+            <p class="char-desc">記憶を失ったふりをするデリトを助けた、快活な女子高生。戦いとなれば一切迷いなく刃を振るう二面性を持つ。負けず嫌いな性格の奥に、前世から抱える傷を秘めている。</p>
+          </div>
+        </div>
+
+        <!-- 7 ネドカイ -->
+        <div class="char-slide">
+          <div class="char-img"><img src="nedokai.png" alt="ネドカイ"></div>
+          <div class="char-info">
+            <h3 class="char-name">ネドカイ</h3>
+            <div class="char-role">正体不明の女</div>
+            <p class="char-desc">とある異世界でデリトたちの前に現れた女性。素性を明かさぬまま近づいてくるその態度には、どこか危うい違和感が漂う。彼女が本当は何者なのか、まだ誰も知らない。</p>
+          </div>
+        </div>
+
+        <!-- 8 ゴブオ -->
+        <div class="char-slide">
+          <div class="char-img is-cover"><img src="gobuo.png" alt="ゴブオ"></div>
+          <div class="char-info">
+            <h3 class="char-name">ゴブオ</h3>
+            <div class="char-role">異世界"ゴブリンズスレイブ"のキング</div>
+            <p class="char-desc">弱体化していたゴブリン族を再び束ね、全種族の王として君臨する小柄な魔王。強欲に見えるその裏に、前世から抱える深い傷を隠している。</p>
+          </div>
+        </div>
+
+        <!-- 9 ??? -->
+        <div class="char-slide">
+          <div class="char-img"><img src="daimuou_touko.png" alt="???"></div>
+          <div class="char-info">
+            <h3 class="char-name" style="color:rgba(255,255,255,.55);">???</h3>
+            <div class="char-role" style="color:rgba(226,90,74,.55);border-color:rgba(226,90,74,.35);">戦国乱世に潜む、太古の瘴気</div>
+            <p class="char-desc" style="color:rgba(179,157,148,.65);">憑いた者を"魔王"に変える、正体不明の面。かつて幾人もの器を渡り歩いてきたという——その牙が、次に狙うのは誰か。</p>
+          </div>
+        </div>
+
+      </div>
+      </div>
+      <button class="s-btn next" onclick="slideC(1)">&#8250;</button>
+    </div>
+    <div class="s-dots" id="cd"></div>
+  </div>
+</section>
+
+<!-- ═══ WORLD ═══ -->
+<section id="factions" style="position:relative;">
+  <div style="position:absolute;inset:0;background:radial-gradient(ellipse 60% 40% at 20% 70%,rgba(226,90,74,.05),transparent);"></div>
+  <div class="sec-inner">
+    <span class="sec-label">World</span>
+    <h2 class="sec-title">世界観</h2>
+    <div class="sec-divider"></div>
+    <div class="slider-outer" style="padding:0 28px;">
+      <button class="s-btn prev" onclick="slideF(-1)">&#8249;</button>
+      <div class="s-clip">
+      <div class="s-track" id="ft">
+
+        <!-- W1 物語世界 -->
+        <div class="fac-slide">
+          <div class="fac-img">
+            <div class="fac-img-symbol" style="color:rgba(226,90,74,.35);">⊕</div>
+          </div>
+          <div class="fac-info">
+            <div class="fac-badge" style="color:#e25a4a;border-color:#e25a4a;">WORLD 01</div>
+            <h3 class="fac-name">物語世界</h3>
+            <p class="fac-desc">現実世界の想像力から生まれ落ちる、無数の"異世界"の総称。数が増えすぎれば崩壊し、減りすぎても痩せ細っていく——その危ういバランスの上に、すべての異世界が成り立っている。</p>
+            <div class="fac-tags">
+              <span class="tag">多元世界</span><span class="tag">増え続ける異世界</span><span class="tag">崩壊の予兆</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- W2 O.W.H.L. -->
+        <div class="fac-slide">
+          <div class="fac-img" style="background:linear-gradient(135deg,#100a08,#201510);">
+            <div class="fac-img-symbol" style="color:rgba(143,230,168,.35);">✦</div>
+          </div>
+          <div class="fac-info">
+            <div class="fac-badge" style="color:#8fe6a8;border-color:#8fe6a8;">FACTION 01</div>
+            <h3 class="fac-name">O.W.H.L.（異世界転生勇者同盟）</h3>
+            <p class="fac-desc">各異世界の転生者たちを集めて結成された同盟。転生の女神ユークリートが率い、表向きは"正義"を掲げるが、その内実は一枚岩ではない。デリトの行く手に幾度となく立ちはだかる組織。</p>
+            <div class="fac-tags">
+              <span class="tag">転生者の同盟</span><span class="tag">正義の看板</span><span class="tag">一枚岩ではない</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- W3 魔王連合 -->
+        <div class="fac-slide">
+          <div class="fac-img" style="background:linear-gradient(135deg,#150808,#250a0a);">
+            <div class="fac-img-symbol" style="color:rgba(226,90,74,.35);">☽</div>
+          </div>
+          <div class="fac-info">
+            <div class="fac-badge" style="color:#e25a4a;border-color:#e25a4a;">FACTION 02</div>
+            <h3 class="fac-name">魔王連合</h3>
+            <p class="fac-desc">各異世界を統べる魔王たちが手を組んだ連合。かつては勇者として転生しながら、道を踏み外していった者たちの成れの果てが、こうして手を取り合っている。</p>
+            <div class="fac-tags">
+              <span class="tag">魔王の連合体</span><span class="tag">元・勇者たち</span><span class="tag">道を踏み外した者</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- W4 転生の女神 -->
+        <div class="fac-slide">
+          <div class="fac-img" style="background:linear-gradient(135deg,#0a0f18,#101c2a);">
+            <div class="fac-img-symbol" style="color:rgba(240,228,222,.3);">♕</div>
+          </div>
+          <div class="fac-info">
+            <div class="fac-badge" style="color:#f0e4de;border-color:rgba(240,228,222,.5);">SYSTEM 01</div>
+            <h3 class="fac-name">転生の女神たち</h3>
+            <p class="fac-desc">異世界転生というシステムそのものを司る、姉妹と呼ばれる女神たち。誰が味方で誰が敵なのか、その境界は驚くほど曖昧だ。デリトを生み出した理由も、まだ全ては語られていない。</p>
+            <div class="fac-tags">
+              <span class="tag">システムの管理者</span><span class="tag">姉妹という建前</span><span class="tag">曖昧な境界線</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- W5 チートキラー -->
+        <div class="fac-slide">
+          <div class="fac-img" style="background:linear-gradient(135deg,#0a1410,#0e2018);">
+            <div class="fac-img-symbol" style="color:rgba(143,230,168,.35);">◎</div>
+          </div>
+          <div class="fac-info">
+            <div class="fac-badge" style="color:#8fe6a8;border-color:#8fe6a8;">ABILITY 01</div>
+            <h3 class="fac-name">チートキラー</h3>
+            <p class="fac-desc">デリトが持つ、禁忌の権能。転生者の力そのものを凌駕するのではなく、前世に負った"心の傷"を暴き、その綻びを撃ち抜く対抗策。強さでは測れない、もうひとつの戦い方。</p>
+            <div class="fac-tags">
+              <span class="tag">弱点を突く力</span><span class="tag">前世の傷</span><span class="tag">禁忌の権能</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      </div>
+      <button class="s-btn next" onclick="slideF(1)">&#8250;</button>
+    </div>
+    <div class="s-dots" id="fd"></div>
+  </div>
+</section>
+
+<!-- ═══ LINKS ═══ -->
+<section id="links" style="position:relative;">
+  <div class="sec-inner">
+    <span class="sec-label">Read</span>
+    <h2 class="sec-title">小説を読む</h2>
+    <div class="sec-divider"></div>
+    <div class="links-grid">
+      <div class="link-card is-soon">
+        <span class="link-label">小説掲載サイト</span>
+        <div class="link-title">近日公開</div>
+        <p>掲載先は現在準備中です。公開され次第、このページを更新します。</p>
+      </div>
+      <div class="link-card is-soon">
+        <span class="link-label">更新情報</span>
+        <div class="link-title">近日公開</div>
+        <p>最新話の更新情報も、こちらのページでお知らせする予定です。</p>
+      </div>
+    </div>
+    <p class="links-note">※ しばらくお待ちください。</p>
+  </div>
+</section>
+
+<!-- ═══ DISCLAIMER ═══ -->
+<section id="disclaimer">
+  <div class="sec-inner" style="max-width:780px;">
+    <div class="disc-icon">◎</div>
+    <div class="disc-title">NOTICE / 本作品について</div>
+    <div class="disc-text">
+      <p>「異世界転生殺し」は、<strong>作者オリジナルの完全新作小説</strong>です。実在する作品・企業・団体とは一切関係ありません。</p>
+      <br>
+      <p>本作品は個人の創作活動として執筆されており、<strong>完全に非商用</strong>のプロジェクトとして無料公開しています。金銭的利益を目的とするものではありません。</p>
+      <br>
+      <p>登場する人物・世界観・設定は、すべて作者に帰属するオリジナルの創作物です。</p>
+    </div>
+    <div class="disc-note">
+      ※ 本作品のキャラクタービジュアルには画像生成のデジタルツールを一部使用しています。ただし、ストーリー・キャラクター設定・世界観・脚本はすべて作者本人が執筆・構成したオリジナルです。
+    </div>
+    <div class="disc-sep"></div>
+    <p class="disc-support">
+      もし本作品を楽しんでいただけたなら、<strong>感想・シェア・応援</strong>が何より嬉しいです。<br>
+      個人クリエイターとして、皆さんの声が制作の原動力になっています。
+    </p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p>異世界転生殺し — Original Novel Project / Independent Creative Work<br>
+  &copy; SashieMichkazu / MICHIKAZU SASHIE. All rights reserved.</p>
+</footer>
+
+<script>
+// ── GLITCH RAIN
+(function(){
+  const ae=document.getElementById('ae');
+  const chars=['0','1','終','殺','転','生','影','鍵','∞','KILL','ERR','0x2F','void','???'];
+  const colors=['#e25a4a','#8fe6a8','#6b5049'];
+  for(let i=0;i<55;i++){
+    const s=document.createElement('div');s.className='glyph';
+    const op=Math.random()*.35+.08;
+    const c=colors[Math.floor(Math.random()*colors.length)];
+    const dur=6+Math.random()*10;
+    const delay=Math.random()*dur;
+    s.textContent=chars[Math.floor(Math.random()*chars.length)];
+    s.style.cssText=`left:${Math.random()*100}%;color:${c};--op:${op};animation-duration:${dur}s;animation-delay:-${delay}s;`;
+    ae.appendChild(s);
+  }
+})();
+
+// ── NAV
+window.addEventListener('scroll',()=>document.getElementById('nav').classList.toggle('scrolled',scrollY>50));
+function navTo(id){
+  closeNav();
+  const el=document.getElementById(id);
+  if(el) el.scrollIntoView({behavior:'smooth'});
+}
+function toggleNav(){document.getElementById('nl').classList.toggle('open');}
+function closeNav(){document.getElementById('nl').classList.remove('open');}
+
+// ── SLIDER FACTORY
+function makeSlider(trackId, dotsId, count){
+  let cur=0;
+  const track=document.getElementById(trackId);
+  const wrap=document.getElementById(dotsId);
+  for(let i=0;i<count;i++){
+    const d=document.createElement('button');
+    d.className='s-dot'+(i===0?' on':'');
+    (n=>{d.onclick=()=>go(n);})(i);
+    wrap.appendChild(d);
+  }
+  function go(n){
+    cur=(n+count)%count;
+    track.style.transform=`translateX(-${cur*100}%)`;
+    wrap.querySelectorAll('.s-dot').forEach((d,i)=>d.classList.toggle('on',i===cur));
+  }
+  let tx=0;
+  track.addEventListener('touchstart',e=>tx=e.touches[0].clientX,{passive:true});
+  track.addEventListener('touchend',e=>{const d=tx-e.changedTouches[0].clientX;if(Math.abs(d)>40)go(cur+(d>0?1:-1));});
+  return {go, slide:(dir)=>go(cur+dir)};
+}
+
+const cSlider=makeSlider('ct','cd',9);
+const fSlider=makeSlider('ft','fd',5);
+function slideC(d){cSlider.slide(d);}
+function slideF(d){fSlider.slide(d);}
+setInterval(()=>cSlider.slide(1),8000);
+setInterval(()=>fSlider.slide(1),8000);
+
+// ── SCROLL REVEAL
+const ro=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in');}),{threshold:.1});
+document.querySelectorAll('.reveal').forEach(el=>ro.observe(el));
+</script>
+</body>
+</html>
