@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>小説を読む — シルバーウォーズ－敬老の非－</title>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@500;700;900&family=Noto+Sans+JP:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --red:#8f0c0c;--red-dim:#5c0808;
+  --text:#e9e6df;--text-dim:#8a8580;
+  --surface:#0a0a0a;--surface2:#131211;--surface3:#1a1817;
+  --border:rgba(233,230,223,0.1);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;background:#0a0a0a;}
+body{background:#0a0a0a;color:var(--text);font-family:'Noto Sans JP',sans-serif;font-size:16px;line-height:1.85;}
+a{color:var(--red);}
+.wrap{max-width:720px;margin:0 auto;padding:6.5rem 1.5rem 6rem;}
+header.top{position:fixed;top:0;left:0;right:0;z-index:10;padding:1rem 1.5rem;background:rgba(10,10,10,.94);border-bottom:1px solid var(--border);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:space-between;}
+.top a.back{font-size:13px;letter-spacing:.1em;color:var(--text-dim);text-decoration:none;}
+.top a.back:hover{color:var(--red);}
+.top .worklabel{font-family:'Zen Kaku Gothic New',sans-serif;font-weight:900;font-size:11px;letter-spacing:.2em;color:#c08a8a;text-transform:uppercase;}
+h1.pagetitle{font-family:'Zen Kaku Gothic New',sans-serif;font-weight:900;font-size:clamp(24px,5vw,34px);color:#fff;margin-bottom:.5rem;letter-spacing:.02em;}
+.sub{color:var(--text-dim);margin-bottom:2.5rem;font-size:14px;letter-spacing:.1em;}
+.toc-list{display:flex;flex-direction:column;border-top:1px solid var(--border);}
+.toc-item{display:flex;align-items:baseline;gap:1rem;padding:1.1rem .5rem;border-bottom:1px solid var(--border);text-decoration:none;color:var(--text);transition:background .2s;}
+.toc-item:hover{background:rgba(143,12,12,.08);}
+.toc-num{font-family:'Zen Kaku Gothic New',sans-serif;color:var(--red);font-weight:700;font-size:12px;min-width:5.5em;}
+.toc-title{flex:1;font-size:17px;}
+.toc-date{font-size:12px;color:var(--text-dim);white-space:nowrap;}
+.empty{padding:3.5rem 0;text-align:center;color:var(--text-dim);font-size:16px;letter-spacing:.02em;}
+.chapter-head{margin-bottom:2.5rem;}
+.chapter-num{font-family:'Zen Kaku Gothic New',sans-serif;font-weight:900;letter-spacing:.2em;font-size:12px;color:var(--red);text-transform:uppercase;margin-bottom:.6rem;}
+.chapter-title{font-family:'Zen Kaku Gothic New',sans-serif;font-weight:900;font-size:clamp(20px,4vw,28px);color:#fff;line-height:1.4;}
+.chapter-date{font-size:12px;color:var(--text-dim);margin-top:.6rem;}
+.chapter-body p{margin-bottom:1.4em;font-size:17px;color:var(--text);}
+.chapter-nav{display:flex;justify-content:space-between;gap:1rem;margin-top:3.5rem;padding-top:2rem;border-top:1px solid var(--border);}
+.chapter-nav a{font-size:13px;letter-spacing:.05em;color:var(--text-dim);text-decoration:none;border:1px solid var(--border);padding:.8rem 1.1rem;flex:1;text-align:center;transition:all .2s;}
+.chapter-nav a:hover{border-color:var(--red);color:#c08a8a;}
+.chapter-nav a.disabled{opacity:.25;pointer-events:none;}
+.toc-return{display:inline-block;margin-top:2rem;font-size:12px;letter-spacing:.15em;color:var(--text-dim);text-decoration:none;}
+.toc-return:hover{color:#c08a8a;}
+#view-chapter{display:none;}
+.chapter-cover{width:100%;border-radius:4px;margin-bottom:2rem;display:block;}
+.chapter-body img{max-width:100%;border-radius:4px;margin:1.6em 0;display:block;}
+.back-group{display:flex;gap:1.3rem;align-items:center;}
+#tocLink{display:none;cursor:pointer;}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="back-group">
+    <a class="back" href="../index.html">← 作品ページへ戻る</a>
+    <a class="back" href="#toc" id="tocLink" onclick="showToc();return false;">小説目次へ戻る</a>
+  </div>
+  <span class="worklabel">SILVER WARS</span>
+</header>
+<div class="wrap">
+
+  <section id="view-toc">
+    <h1 class="pagetitle">小説を読む</h1>
+    <p class="sub">シルバーウォーズ－敬老の非－</p>
+    <div class="toc-list" id="tocList"></div>
+  </section>
+
+  <section id="view-chapter">
+    <div class="chapter-head">
+      <div class="chapter-num" id="chNum"></div>
+      <h1 class="chapter-title" id="chTitle"></h1>
+      <div class="chapter-date" id="chDate"></div>
+    </div>
+    <div class="chapter-body" id="chBody"></div>
+    <div class="chapter-nav">
+      <a href="#" id="prevBtn">前の話</a>
+      <a href="#" id="nextBtn">次の話</a>
+    </div>
+    <a href="#toc" class="toc-return">目次に戻る</a>
+  </section>
+
+</div>
+
+<script>
+let CHAPTERS = [];
+const WORK_TITLE = 'シルバーウォーズ－敬老の非－';
+
+function esc(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function renderBody(text){
+  return String(text).split(/\n\s*\n/).map(p => {
+    const t = p.trim();
+    const m = t.match(/^!\[([^\]]*)\]\(([^)]+)\)$/);
+    if(m){ return '<img src="' + esc(m[2]) + '" alt="' + esc(m[1]) + '">'; }
+    return '<p>' + esc(t).replace(/\n/g,'<br>') + '</p>';
+  }).join('');
+}
+function renderToc(){
+  const list = document.getElementById('tocList');
+  const pub = CHAPTERS.filter(c => c.published);
+  if(pub.length === 0){
+    list.innerHTML = '<div class="empty">只今準備中です。公開され次第、ここに一覧が表示されます。</div>';
+    return;
+  }
+  list.innerHTML = pub.map(c =>
+    '<a class="toc-item" href="#ch-' + c.id + '">' +
+      '<span class="toc-num">EPISODE ' + String(c.id).padStart(2,'0') + '</span>' +
+      '<span class="toc-title">' + esc(c.title) + '</span>' +
+      '<span class="toc-date">' + esc(c.date || '') + '</span>' +
+    '</a>'
+  ).join('');
+}
+function showToc(){
+  document.getElementById('view-toc').style.display = '';
+  document.getElementById('view-chapter').style.display = 'none';
+  document.getElementById('tocLink').style.display = 'none';
+  document.title = '小説を読む — ' + WORK_TITLE;
+}
+function showChapter(id){
+  const pub = CHAPTERS.filter(c => c.published);
+  const idx = pub.findIndex(c => c.id === id);
+  if(idx === -1){ showToc(); return; }
+  const c = pub[idx];
+  document.getElementById('chNum').textContent = 'EPISODE ' + String(c.id).padStart(2,'0');
+  document.getElementById('chTitle').textContent = c.title;
+  document.getElementById('chDate').textContent = c.date || '';
+  const coverHtml = c.coverImage ? '<img class="chapter-cover" src="' + esc(c.coverImage) + '" alt="">' : '';
+  document.getElementById('chBody').innerHTML = coverHtml + renderBody(c.body || '');
+  const prev = pub[idx-1], next = pub[idx+1];
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  if(prev){ prevBtn.href = '#ch-'+prev.id; prevBtn.classList.remove('disabled'); prevBtn.textContent = '← ' + prev.title; }
+  else { prevBtn.classList.add('disabled'); prevBtn.textContent = ''; }
+  if(next){ nextBtn.href= '#ch-'+next.id; nextBtn.classList.remove('disabled'); nextBtn.textContent = next.title + ' →'; }
+  else { nextBtn.classList.add('disabled'); nextBtn.textContent = ''; }
+  document.getElementById('view-toc').style.display = 'none';
+  document.getElementById('view-chapter').style.display = 'block';
+  document.getElementById('tocLink').style.display = 'inline';
+  document.title = c.title + ' — ' + WORK_TITLE;
+  window.scrollTo(0,0);
+}
+function route(){
+  const m = location.hash.match(/^#ch-(\d+)/);
+  if(m){ showChapter(parseInt(m[1],10)); } else { showToc(); }
+}
+fetch('./chapters.json?t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()).then(data => {
+  CHAPTERS = (data.chapters || []).slice().sort((a,b) => a.id - b.id);
+  renderToc();
+  route();
+}).catch(() => {
+  document.getElementById('tocList').innerHTML = '<div class="empty">読���込みに失敗しました。時間をおいて再度お誦しください。</div>';
+});
+window.addEventListener('hashchange', route);
+</script>
+</body>
+</html>
