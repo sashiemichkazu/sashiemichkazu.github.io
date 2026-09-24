@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>シルバーウォーズ</title>
+<style>
+  :root{
+    --bg:#0a0a0a;
+    --bg2:#131211;
+    --ink:#e9e6df;
+    --dim:#8a8580;
+    --red:#8f0c0c;
+    --hairline:rgba(233,230,223,0.08);
+    color-scheme:dark;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{background:#0a0a0a;overscroll-behavior-y:none;}
+  body{
+    background:#0a0a0a;
+    color:#e9e6df;
+    font-family:'Noto Sans JP',sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100%;
+  }
+  .wrap{max-width:900px;margin:0 auto;padding:0 20px;}
+  .noise{
+    position:fixed;inset:0;pointer-events:none;opacity:0.05;mix-blend-mode:overlay;z-index:5;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* ===== HERO — full-bleed key visual ===== */
+  .hero{
+    position:relative;
+    overflow:hidden;
+    background:linear-gradient(180deg,#131211,#0a0a0a 75%);
+    padding-bottom:64px;
+  }
+  .kv-wrap{
+    position:relative;
+    width:100%;
+    height:52vh;
+    min-height:300px;
+    max-height:560px;
+    overflow:hidden;
+  }
+  .hero .kv{
+    position:absolute;inset:0;width:100%;height:100%;
+    object-fit:cover;object-position:center 22%;
+    filter:contrast(1.1) saturate(0.85) brightness(0.92);
+  }
+  .hero .veil{
+    position:absolute;inset:0;
+    background:linear-gradient(180deg, rgba(10,10,10,0) 55%, #0a0a0a 97%);
+  }
+  .hero-inner{
+    position:relative;z-index:2;
+    padding-top:20px;
+    text-align:center;
+  }
+  .hero-title h1{
+    font-family:'Zen Kaku Gothic New',sans-serif;
+    font-weight:900;
+    font-size:clamp(42px,10.5vw,96px);
+    line-height:0.95;
+    letter-spacing:0.01em;
+  }
+  .hero-title .sub{
+    display:block;font-size:clamp(13px,2.4vw,17px);font-weight:500;color:#c08a8a;
+    margin-top:14px;letter-spacing:0.32em;
+  }
+  .synopsis{
+    max-width:520px;margin:34px auto 0;padding:0 24px;
+    font-size:14px;line-height:2.05;color:#b7b2ab;
+    text-align:left;
+  }
+
+  /* ===== SECTIONS ===== */
+  section{padding:56px 0 20px;position:relative;}
+  section::before{
+    content:"";position:absolute;top:0;left:50%;transform:translateX(-50%);
+    width:36%;height:2px;background:#8f0c0c;
+    box-shadow:0 0 24px 2px rgba(143,12,12,0.45);
+  }
+  .section-title{
+    text-align:center;
+    font-family:'Zen Kaku Gothic New',sans-serif;font-weight:900;
+    font-size:clamp(22px,4.5vw,32px);
+    margin:34px 0 30px;
+  }
+
+  /* ===== CAST — auto-flowing filmstrip ===== */
+  .marquee{
+    width:100vw;
+    position:relative;
+    left:50%;right:50%;margin-left:-50vw;margin-right:-50vw;
+    overflow:hidden;
+    background:#000;
+  }
+  .grid{
+    display:flex;gap:0;
+    width:max-content;
+    animation:flow 46s linear infinite;
+  }
+  @keyframes flow{
+    from{ transform:translateX(0); }
+    to{ transform:translateX(-50%); }
+  }
+  .tile{
+    position:relative;
+    flex:0 0 auto;
+    width:44vw;max-width:280px;aspect-ratio:3/4;
+    background:#000;overflow:hidden;
+    cursor:pointer;
+    filter:contrast(1.1) brightness(1.18);
+    clip-path:polygon(24px 0,100% 0,calc(100% - 24px) 100%,0 100%);
+    margin-left:-24px;
+  }
+  .tile:first-child{margin-left:0;}
+  .tile img{
+    position:absolute;inset:0;width:100%;height:100%;
+    object-fit:cover;object-position:top center;
+    transform:scale(1.6);
+    transform-origin:50% 0%;
+  }
+  .tile .scrim{
+    position:absolute;left:0;right:0;bottom:0;height:46%;
+    background:linear-gradient(180deg, rgba(10,10,10,0), #0a0a0a 85%);
+  }
+  .tile .nm{
+    position:absolute;left:0;right:0;bottom:10px;text-align:center;
+    font-family:'Zen Kaku Gothic New',sans-serif;font-weight:900;
+    font-size:clamp(14px,2.6vw,19px);z-index:2;
+  }
+  @media (prefers-reduced-motion: reduce){
+    .grid{ animation:none; }
+  }
+
+  /* ===== NOVEL CTA ===== */
+  .novel{
+    padding:90px 0 30px;text-align:center;
+  }
+  .novel .lead{
+    font-size:12px;letter-spacing:0.3em;color:#8a8580;margin-bottom:18px;
+  }
+  .novel a{
+    display:inline-block;
+    font-family:'Zen Kaku Gothic New',sans-serif;font-weight:900;
+    font-size:clamp(20px,4vw,28px);
+    color:#e9e6df;
+    text-decoration:none;
+    padding:20px 56px;
+    border:1px solid #8f0c0c;
+    position:relative;
+    transition:background 0.25s ease, color 0.25s ease;
+  }
+  .novel a:hover{ background:#8f0c0c; color:#e9e6df; }
+  .novel a::before,.novel a::after{
+    content:"";position:absolute;width:14px;height:14px;border:1px solid #8f0c0c;
+  }
+  .novel a::before{ top:-6px;left:-6px;border-right:none;border-bottom:none; }
+  .novel a::after{ bottom:-6px;right:-6px;border-left:none;border-top:none; }
+
+  /* ===== CLOSE ===== */
+  .close{
+    padding:90px 0 70px;text-align:center;position:relative;
+  }
+  .close::before{
+    content:"";position:absolute;top:0;left:50%;transform:translateX(-50%);
+    width:60%;height:2px;background:#8f0c0c;
+    box-shadow:0 0 24px 2px rgba(143,12,12,0.45);
+  }
+  .close p{
+    font-family:'Zen Kaku Gothic New',sans-serif;
+    font-size:clamp(20px,4vw,30px);font-weight:900;line-height:1.6;
+  }
+  .close span{color:#8f0c0c;}
+  footer{
+    text-align:center;padding:22px 0;font-size:10px;color:#8a8580;
+    letter-spacing:0.15em;border-top:1px solid rgba(233,230,223,0.08);
+  }
+
+  @media (max-width:560px){
+    .tile{width:62vw;}
+  }
+
+  /* ===== MODAL ===== */
+  .modal{
+    position:fixed;inset:0;z-index:20;
+    background:rgba(5,5,5,0.88);
+    display:none;align-items:center;justify-content:center;padding:24px;
+  }
+  .modal.open{display:flex;}
+  .modal-box{
+    background:#131211;border-left:3px solid #8f0c0c;
+    max-width:380px;width:100%;max-height:92svh;overflow-y:auto;
+    position:relative;
+  }
+  .modal-box .close-btn{
+    position:absolute;top:14px;right:16px;z-index:2;
+    background:rgba(10,10,10,0.6);border:none;color:#e9e6df;font-size:20px;line-height:1;
+    cursor:pointer;padding:6px 10px;
+  }
+  .modal-box .m-figure{
+    background:#000;
+    aspect-ratio:3/4;
+    display:flex;align-items:flex-end;justify-content:center;
+  }
+  .modal-box .m-figure img{
+    max-width:100%;max-height:100%;object-fit:contain;
+  }
+  .modal-box .m-body{ padding:26px 28px 34px; }
+  .modal-box .m-name{
+    font-family:'Zen Kaku Gothic New',sans-serif;font-weight:900;
+    font-size:26px;margin-bottom:14px;
+  }
+  .modal-box .m-desc{
+    font-size:13.5px;color:#8a8580;line-height:1.9;
+  }
+</style>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@500;700;900&family=Noto+Sans+JP:wght@400;500&display=swap" rel="stylesheet">
+
+
+</head>
+<body style="margin:0;">
+<div class="noise"></div>
+
+<!-- ===== HERO ===== -->
+<header class="hero">
+  <div class="kv-wrap">
+    <img class="kv" src="img/kv-main.jpg" alt="">
+    <div class="veil"></div>
+  </div>
+  <div class="hero-inner">
+  2 <div class="hero-title">
+      <h1>シルバーウォーズ<span class="sub">－敬老の非－</span></h1>
+    </div>
+    <p class="synopsis">
+    2 老人が増えすぎた日本で、将来を悲観した若者たちが老人排斥の暴動を起こす。反撃に出た元刑事の老人・寅三は、いつしか「反乱老人」としてSNSで名を上げていく。だがその裏に、中年たちの影がちらつき始める。
+    </p>
+  </div>
+</header>
+
+<!-- ===== CAST ===== -->
+<section>
+  <div class="wrap">
+    <div class="section-title">CAST</div>
+  </div>
+  <div class="marquee">
+    <div class="grid">
+
+      <div class="tile" data-name="寅三" data-img="img/torazo.jpg" data-desc="老いてなお衰えぬ眼光を持つ、元刑事の老人。ある事件をきっかけに、再び「正義」と向き合うことになる。花子とは幼馴染でお互い未婚。">
+        <img src="img/torazo.jpg" alt="寅三">
+        <div class="scrim"></div><div class="nm">寅三</div>
+      </div>
+      <div class="tile" data-name="ミカ" data-img="img/mika.jpg" data-desc="誰よりも先頭に立ち、声を上げてきた若者たちのリーダー。曲げない信念を胸に、己の正義を貫こうとする。">
+        <img src="img/mika.jpg" alt="ミカ">
+        <div class="scrim"></div><div class="nm">ミカ</div>
+      </div>
+      <div class="tile" data-name="タカシ" data-img="img/takashi.jpg" data-desc="現役の刑事として、静かに事件を追う青年。かつての上司との絆を胸に、真実を追い続ける。">
+        <img src="img/takashi.jpg" alt="タカシ">
+        <div class="scrim"></div><div class="nm">タカシ</div>
+      </div>
+      <div class="tile" data-name="花子" data-img="img/hanako.jpg" data-desc="上品な微笑みを絶やさない、老人チームの紅一点。長年連れ添うように隣にいた幼馴染への想いを、静かに胸に秘めている。">
+        <img src="img/hanako.jpg" alt="花子">
+        <div class="scrim"></div><div class="nm">花子</div>
+      </div>
+      <div class="tile" data-name="ケンジ" data-img="img/kenji.jpg" data-desc="拳がすべてを語ると信じる、若者たちのサブリーダー。誰よりも仲間を守ろうとする熱い男。">
+        <img src="img/kenji.jpg" alt="ケンジ">
+        <div class="scrim"></div><div class="nm">ケンジ</div>
+      </div>
+      <div class="tile" data-name="黒田" data-img="img/kuroda.jpg" data-desc="世の不公平に怒りを燃やす中年男。己の信念のためなら手段を選ばない。">
+        <img src="img/kuroda.jpg" alt="黒田">
+        <div class="scrim"></div><div class="nm">黒田</div>
+      </div>
+      <div class="tile" data-name="柳老人" data-img="img/yanagi.jpg" data-desc="誰からも慕われる、穏やかな老紳士。その柔らかな物腰の奥に、何を秘めているのかは誰も知らない。">
+        <img src="img/yanagi.jpg" alt="柳老人">
+        <div class="scrim"></div><div class="nm">柳老人</div>
+      </div>
+      <div class="tile" data-name="マドカ" data-img="img/madoka.jpg" data-desc="育ちの良さを感じさせる、屈託のない笑顔が印象的な女性。既に亡くなった資産家の娘らしく、若者グループに資金提供を申し出る。">
+        <img src="img/madoka.jpg" alt="マドカ">
+        <div class="scrim"></div><div class="nm">マドカ</div>
+      </div>
+
+      <!-- 複製（シームレスループ用） -->
+      <div class="tile" data-name="寅三" data-img="img/torazo.jpg" data-desc="老いてなお衰えぬ眼光を持つ、元刑事の老人。ある事件をきっかけに、再び「正義」と向き合うことになる。花子とは幼馴染でお互い未婚。">
+        <img src="img/torazo.jpg" alt="寅三">
+        <div class="scrim"></div><div class="nm">寅三</div>
+      </div>
+      <div class="tile" data-name="ミカ" data-img="img/mika.jpg" data-desc="誰よりも先頭に立ち、声を上げてきた若者たちのリーダー。曲げない信念を胸に、己の正義を貫こうとする。">
+        <img src="img/mika.jpg" alt="ミカ">
+        <div class="scrim"></div><div class="nm">ミカ</div>
+      </div>
+      <div class="tile" data-name="タカシ" data-img="img/takashi.jpg" data-desc="現役の刑事として、静かに事件を追う青年。かつての上司との絆を胸に、真実を追い続ける。">
+        <img src="img/takashi.jpg" alt="タカシ">
+        <div class="scrim"></div><div class="nm">タカシ</div>
+      </div>
+      <div class="tile" data-name="花子" data-img="img/hanako.jpg" data-desc="上品な微笑みを絶やさない、老人チームの紅一点。長年連れ添うように隣にいた幼馴染への想いを、静かに胸に秘めている。">
+        <img src="img/hanako.jpg" alt="花子">
+        <div class="scrim"></div><div class="nm">花子</div>
+      </div>
+      <div class="tile" data-name="ケンジ" data-img="img/kenji.jpg" data-desc="拳がすべてを語ると信じる、若者たちのサブリーダー。誰よりも仲間を守ろうとする熱い男。">
+        <img src="img/kenji.jpg" alt="ケンジ">
+        <div class="scrim"></div><div class="nm">ケンジ</div>
+      </div>
+      <div class="tile" data-name="黒田" data-img="img/kuroda.jpg" data-desc="世の不公平に怒りを燃やす中年男。己の信念のためなら手段を選ばない。">
+        <img src="img/kuroda.jpg" alt="黒田">
+        <div class="scrim"></div><div class="nm">黒田</div>
+      </div>
+      <div class="tile" data-name="柳老人" data-img="img/yanagi.jpg" data-desc="誰からも慕われる、穏やかな老紳士。その柔らかな物腰の奥に、何を秘めているのかは誰も知らない。">
+        <img src="img/yanagi.jpg" alt="柳老人">
+        <div class="scrim"></div><div class="nm">柳老人</div>
+      </div>
+      <div class="tile" data-name="マドカ" data-img="img/madoka.jpg" data-desc="育ちの良さを感じさせる、屈託のない笑顔が印象的な女性。既に亡くなった資産家の娘らしく、若者グループに資金提供を申し出る。">
+        <img src="img/madoka.jpg" alt="マドカ">
+        <div class="scrim"></div><div class="nm">マドカ</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ===== NOVEL CTA ===== -->
+<div class="novel">
+  <div class="lead">NOVEL</div>
+  <a href="./novel/index.html">小説を読む</a>
+</div>
+
+<div class="close">
+  <div class="wrap">
+    <p>老人なろんなよ。<span>ガキが。</span></p>
+  </div>
+</div>
+
+<footer>SASHIEMICHKAZU WORKS</footer>
+
+<div class="modal" id="modal">
+  <div class="modal-box">
+    <button class="close-btn" id="modalClose">×</button>
+    <div class="m-figure"><img id="mImg" src="" alt=""></div>
+    <div class="m-body">
+      <div class="m-name" id="mName"></div>
+      <div class="m-desc" id="mDesc"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  var modal = document.getElementById('modal');
+  document.querySelectorAll('.tile').forEach(function(tile){
+    tile.addEventListener('click', function(){
+      document.getElementById('mImg').src = tile.dataset.img;
+      document.getElementById('mImg').alt = tile.dataset.name;
+      document.getElementById('mName').textContent = tile.dataset.name;
+      document.getElementById('mDesc').textContent = tile.dataset.desc;
+      modal.classList.add('open');
+    });
+  });
+  document.getElementById('modalClose').addEventListener('click', function(){ modal.classList.remove('open'); });
+  modal.addEventListener('click', function(e){ if(e.target === modal) modal.classList.remove('open'); });
+</script>
+
+</body>
+</html>
