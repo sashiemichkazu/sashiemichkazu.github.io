@@ -41,6 +41,9 @@ h1.pagetitle{font-family:'Orbitron',sans-serif;font-weight:700;font-size:clamp(2
 .chapter-nav a.disabled{opacity:.25;pointer-events:none;}
 .toc-return{display:inline-block;margin-top:2rem;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--text-dim);text-decoration:none;}
 .toc-return:hover{color:var(--gold);}
+.toc-item.has-thumb{align-items:center;}
+.toc-thumb{flex:none;width:136px;aspect-ratio:16/9;object-fit:cover;border-radius:6px;display:block;background:var(--surface3);}
+@media(max-width:560px){.toc-item.has-thumb{flex-wrap:wrap;}.toc-thumb{width:100%;}}
 #view-chapter{display:none;}
 .chapter-cover{width:100%;border-radius:10px;margin-bottom:2rem;display:block;}
 .chapter-body img{max-width:100%;border-radius:10px;margin:1.6em 0;display:block;}
@@ -95,6 +98,10 @@ function renderBody(text){
     return '<p>' + esc(t).replace(/\n/g,'<br>') + '</p>';
   }).join('');
 }
+function thumbSrc(p){
+  const i = p.lastIndexOf('/');
+  return p.slice(0,i) + '/thumbs/' + p.slice(i+1).replace(/\.[^.]+$/,'') + '.jpg';
+}
 function renderToc(){
   const list = document.getElementById('tocList');
   const pub = CHAPTERS.filter(c => c.published);
@@ -103,7 +110,8 @@ function renderToc(){
     return;
   }
   list.innerHTML = pub.map(c =>
-    '<a class="toc-item" href="#ch-' + c.id + '">' +
+    '<a class="toc-item' + (c.coverImage ? ' has-thumb' : '') + '" href="#ch-' + c.id + '">' +
+      (c.coverImage ? '<img class="toc-thumb" loading="lazy" alt="" src="' + esc(thumbSrc(c.coverImage)) + '" data-full="' + esc(c.coverImage) + '" onerror="this.onerror=null;this.src=this.dataset.full">' : '') +
       '<span class="toc-num">EPISODE ' + String(c.id).padStart(2,'0') + '</span>' +
       '<span class="toc-title">' + esc(c.title) + '</span>' +
       '<span class="toc-date">' + esc(c.date || '') + '</span>' +
